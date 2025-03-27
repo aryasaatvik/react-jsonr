@@ -122,3 +122,74 @@ For full documentation, API reference, and more examples, see [the full document
 ## License
 
 MIT 
+
+## Testing
+
+React-JSONR uses [Vitest](https://vitest.dev/) for unit and integration testing.
+
+### Running Tests
+
+To run the test suite once:
+
+```bash
+pnpm test
+```
+
+To run tests in watch mode during development:
+
+```bash
+pnpm test:watch
+```
+
+To run tests with code coverage:
+
+```bash
+pnpm test:coverage
+```
+
+### Performance Benchmarking
+
+React-JSONR includes benchmark tests to measure and compare the performance of key operations:
+
+```bash
+pnpm bench
+```
+
+The benchmarks measure:
+- Transformation performance with different tree sizes
+- Transformation performance with different visitors
+- Transformation performance with different traversal algorithms
+- Rendering performance with different tree sizes
+- End-to-end performance (transform + render)
+
+These benchmarks are useful for identifying performance regressions when making changes to the codebase.
+
+### Test Structure
+
+The tests are organized as follows:
+
+- `test/transformation.test.ts` - Tests for the JSON tree transformation functionality
+- `test/rendering.test.tsx` - Tests for the React rendering functionality
+- `test/integration.test.tsx` - Integration tests that combine transformation and rendering
+- `test/types.test.ts` - Type validation tests
+- `test/benchmark.bench.ts` - Performance benchmark tests
+
+### Code Coverage
+
+The project uses V8's coverage provider to generate coverage reports. Current coverage:
+
+- Rendering: Good coverage (>90%)
+- Transformation: Partial coverage (~50%, needs more tests)
+
+To improve coverage:
+- Add tests for depthFirstPostOrder and breadthFirst traversal modes
+- Add more edge case tests
+
+### Writing Tests
+
+When writing tests, follow these guidelines:
+
+1. Use descriptive test names that explain what functionality is being tested
+2. Keep test cases focused on testing a single piece of functionality
+3. Use unique data-testid attributes when testing rendered components
+4. Mock external dependencies when necessary 
