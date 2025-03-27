@@ -1,6 +1,6 @@
 {
   "name": "react-jsonr",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A plugin-based JSON to React component renderer",
   "type": "module",
   "module": "dist/index.js",
@@ -36,6 +36,11 @@
     "dynamic",
     "ui"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aryasaatvik/react-jsonr.git",
+    "directory": "packages/react-jsonr"
+  },
   "author": "Saatvik Arya <aryasaatvik@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
