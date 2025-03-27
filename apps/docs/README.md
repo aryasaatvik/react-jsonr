@@ -33,6 +33,6 @@ To add or modify documentation:
 
 ## Learn More
 
-- [React JSONR GitHub Repository](https://github.com/yourusername/react-jsonr)
+- [React JSONR GitHub Repository](https://github.com/aryasaatvik/react-jsonr)
 - [Fumadocs](https://fumadocs.vercel.app) - documentation framework
 - [Next.js Documentation](https://nextjs.org/docs)

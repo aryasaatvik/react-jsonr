@@ -24,7 +24,7 @@ export default function HomePage() {
               Get Started <ArrowRight size={16} />
             </Link>
             <Link 
-              href="https://github.com/username/react-jsonr"
+              href="https://github.com/aryasaatvik/react-jsonr"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-fd-border hover:bg-fd-accent"
               target="_blank"
               rel="noopener noreferrer"
