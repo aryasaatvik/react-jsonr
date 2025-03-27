@@ -1,0 +1,223 @@
+---
+title: Interactive Traversal
+description: Using traverseJsonTree for interactive node discovery and modification
+---
+
+# Interactive Tree Traversal
+
+This example demonstrates how to use the `traverseJsonTree` generator function to interactively traverse and modify JSON trees.
+
+## Basic Traversal
+
+The simplest way to use `traverseJsonTree` is to iterate over all nodes in the tree:
+
+```tsx
+import { traverseJsonTree } from 'react-jsonr';
+
+// Example JSON definition
+const jsonDefinition = {
+  type: 'Form',
+  props: { title: 'Contact Us' },
+  children: [
+    {
+      type: 'Input',
+      props: { name: 'email', label: 'Email' }
+    },
+    {
+      type: 'Input', 
+      props: { name: 'message', label: 'Message' }
+    },
+    {
+      type: 'Button',
+      props: { label: 'Submit' }
+    }
+  ]
+};
+
+// Traverse all nodes
+for (const { node, context } of traverseJsonTree(jsonDefinition)) {
+  console.log(`Visiting ${node.type} at depth ${context.depth}`);
+}
+```
+
+## Filtering Nodes by Type
+
+You can filter nodes by type to focus on specific components:
+
+```tsx
+// Get only Input nodes
+const inputNodes = traverseJsonTree(jsonDefinition, { 
+  nodeTypes: ['Input'] 
+});
+
+for (const { node } of inputNodes) {
+  console.log(`Found input field: ${node.props?.name}`);
+}
+```
+
+## Modifying Nodes During Traversal
+
+One of the most powerful features of `traverseJsonTree` is the ability to modify nodes as you traverse them:
+
+```tsx
+// Make all inputs required
+for (const { node } of traverseJsonTree(jsonDefinition)) {
+  if (node.type === 'Input') {
+    node.props = { 
+      ...node.props, 
+      required: true,
+      validation: {
+        required: 'This field is required'
+      }
+    };
+  }
+}
+
+// Add a disabled state to all buttons
+for (const { node } of traverseJsonTree(jsonDefinition)) {
+  if (node.type === 'Button') {
+    node.props = { 
+      ...node.props, 
+      disabled: true
+    };
+  }
+}
+```
+
+## Skipping Children
+
+You can skip traversing the children of certain nodes using the `context.skipChildren()` method:
+
+```tsx
+// Skip traversing children of any node with a "skip" flag
+for (const { node, context } of traverseJsonTree(jsonDefinition)) {
+  if (node.props?.skip) {
+    console.log(`Skipping children of ${node.type}`);
+    context.skipChildren();
+  }
+}
+```
+
+## Using Different Traversal Orders
+
+`traverseJsonTree` supports three traversal orders:
+
+```tsx
+// Default: Depth-first pre-order (parent before children)
+const preOrderNodes = traverseJsonTree(jsonDefinition, {
+  order: 'depthFirstPre'
+});
+
+// Depth-first post-order (children before parent)
+const postOrderNodes = traverseJsonTree(jsonDefinition, {
+  order: 'depthFirstPost' 
+});
+
+// Breadth-first (level by level)
+const breadthFirstNodes = traverseJsonTree(jsonDefinition, {
+  order: 'breadthFirst'
+});
+```
+
+## Cloning vs. Direct Modification
+
+By default, `traverseJsonTree` works directly on the input object (clone: false). If you want to preserve the original object, use the clone option:
+
+```tsx
+// Default behavior (clone: false) - modifies original
+for (const { node } of traverseJsonTree(jsonDefinition)) {
+  if (node.type === 'Input') {
+    node.props = { ...node.props, modified: true };
+  }
+}
+// jsonDefinition has been modified
+
+// With clone: true - preserves original
+const nodes = traverseJsonTree(jsonDefinition, { clone: true });
+for (const { node } of nodes) {
+  if (node.type === 'Input') {
+    node.props = { ...node.props, modified: true };
+  }
+}
+// jsonDefinition remains unchanged
+```
+
+## Practical Example: Form Validation
+
+This example shows how to use `traverseJsonTree` to add validation to a form:
+
+```tsx
+import { traverseJsonTree, renderNode } from 'react-jsonr';
+import { useState } from 'react';
+
+function FormWithValidation({ formDefinition, registry }) {
+  const [formDef, setFormDef] = useState(formDefinition);
+  
+  const validateForm = () => {
+    // Clone the form definition to create a new version with validation messages
+    const validatedForm = JSON.parse(JSON.stringify(formDef));
+    let isValid = true;
+    
+    for (const { node } of traverseJsonTree(validatedForm)) {
+      if (node.type === 'Input' && node.props?.required) {
+        const value = node.props.value || '';
+        
+        if (!value.trim()) {
+          isValid = false;
+          node.props.error = 'This field is required';
+        } else {
+          // Clear any previous error
+          delete node.props.error;
+        }
+      }
+      
+      // Email validation
+      if (node.type === 'Input' && node.props?.type === 'email') {
+        const value = node.props.value || '';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (value && !emailRegex.test(value)) {
+          isValid = false;
+          node.props.error = 'Please enter a valid email address';
+        }
+      }
+    }
+    
+    setFormDef(validatedForm);
+    return isValid;
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      console.log('Form is valid, submitting...');
+      // Proceed with form submission
+    }
+  };
+  
+  const handleChange = (name, value) => {
+    // Update the form definition with the new value
+    const updatedForm = JSON.parse(JSON.stringify(formDef));
+    
+    for (const { node } of traverseJsonTree(updatedForm)) {
+      if (node.type === 'Input' && node.props?.name === name) {
+        node.props.value = value;
+        // Clear error when user types
+        delete node.props.error;
+      }
+    }
+    
+    setFormDef(updatedForm);
+  };
+  
+  // Create event handlers for the form
+  const eventHandlers = {
+    onChange: (e, name) => handleChange(name, e.target.value),
+    onSubmit: handleSubmit
+  };
+  
+  return renderNode(formDef, registry, { eventHandlers });
+}
+```
+
+This example demonstrates how `traverseJsonTree` enables powerful runtime modifications and inspections of your JSON UI definitions. 

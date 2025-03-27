@@ -66,6 +66,8 @@ const plugins = [
   // Add your plugins here
 ];
 
+// By default, transformJsonTree clones the input
+// You can set clone: false to work directly with the original object
 const transformed = await transformJsonTree(jsonDefinition, plugins);
 
 const component = renderNode(transformed, registry, { eventHandlers });
@@ -106,6 +108,59 @@ const transformed = await transformJsonTree(jsonDefinition, [
   AnalyticsPlugin
 ]);
 ```
+
+## Interactive Traversal with Generator
+
+React JSONR provides a generator function for interactive traversal of the JSON tree. This gives you fine-grained control over the transformation process and allows direct modification of nodes:
+
+```tsx
+import { traverseJsonTree } from 'react-jsonr';
+
+// Example JSON definition
+const jsonDefinition = {
+  type: 'Form',
+  props: { title: 'Contact Us' },
+  children: [
+    { type: 'Input', props: { name: 'email' } },
+    { type: 'Button', props: { label: 'Submit' } }
+  ]
+};
+
+// By default, traverseJsonTree does not clone (clone: false)
+// To avoid modifying the original, use the clone option:
+// const generator = traverseJsonTree(jsonDefinition, { clone: true });
+
+// Traverse all nodes
+for (const { node, context } of traverseJsonTree(jsonDefinition)) {
+  console.log(`Visiting ${node.type} at depth ${context.depth}`);
+  
+  // Modify nodes during traversal - changes affect the original unless clone: true
+  if (node.type === 'Input') {
+    node.props = { ...node.props, required: true };
+  }
+  
+  // Skip children of a specific node if needed
+  if (node.type === 'Button') {
+    context.skipChildren();
+  }
+}
+
+// Filter nodes by type
+const inputNodes = traverseJsonTree(jsonDefinition, { 
+  nodeTypes: ['Input', 'Button'] 
+});
+
+for (const { node } of inputNodes) {
+  console.log(`Found a ${node.type} node`);
+}
+
+// Use different traversal orders
+const postOrderTraversal = traverseJsonTree(jsonDefinition, { 
+  order: 'depthFirstPost' 
+});
+```
+
+Both `transformJsonTree` and `traverseJsonTree` support a consistent API. The `clone` option determines whether to clone the input (defaults to `true` for `transformJsonTree` and `false` for `traverseJsonTree`).
 
 ## Documentation
 

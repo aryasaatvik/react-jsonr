@@ -41,9 +41,48 @@ async function transformJsonTree(
 - `root`: The root JSON node to transform
 - `visitors`: An array of transformation plugins
 - `options` (optional): Configuration options for the transformation
+  - `order`: Traversal order (default: 'depthFirstPre')
+  - `clone`: Whether to clone the input object (default: true)
 
 **Returns:**
 - A promise that resolves to the transformed JSON tree
+
+### traverseJsonTree
+
+Generator function that traverses a JSON tree and yields each node, allowing for interactive node inspection and modification.
+
+```typescript
+function* traverseJsonTree(
+  root: JsonNode,
+  options?: TraverseOptions
+): Generator<{node: JsonNode, context: TransformContext}, void, void>;
+```
+
+**Parameters:**
+- `root`: The root JSON node to traverse
+- `options` (optional): Configuration options for the traversal
+  - `order`: Traversal order (default: 'depthFirstPre')
+  - `clone`: Whether to clone the input object (default: false)
+  - `nodeTypes`: Array of node types to yield (default: all types)
+
+**Returns:**
+- A generator that yields each node along with its context during traversal
+
+**Example:**
+```typescript
+// Traverse and modify nodes
+for (const { node, context } of traverseJsonTree(jsonDefinition)) {
+  if (node.type === 'Button') {
+    node.props = { ...node.props, disabled: true };
+  }
+}
+
+// Filter nodes by type
+const inputNodes = traverseJsonTree(jsonDefinition, { nodeTypes: ['Input'] });
+for (const { node } of inputNodes) {
+  console.log(`Found input: ${node.props?.name}`);
+}
+```
 
 ## Types
 
@@ -122,11 +161,28 @@ Options for transform operations.
 ```typescript
 interface TransformOptions {
   order?: 'depthFirstPre' | 'depthFirstPost' | 'breadthFirst';
+  clone?: boolean;
 }
 ```
 
 **Properties:**
-- `order` (optional): Traversal order for the transformation
+- `order` (optional): Traversal order for the transformation (default: 'depthFirstPre')
+- `clone` (optional): Whether to clone the input before transforming (default: true)
+
+### TraverseOptions
+
+Options for traversal using the generator.
+
+```typescript
+interface TraverseOptions extends TransformOptions {
+  nodeTypes?: string[];
+}
+```
+
+**Properties:**
+- Inherits all properties from TransformOptions
+- `nodeTypes` (optional): Types of nodes to yield (empty array or undefined = all types)
+- `clone` (optional): Whether to clone the input before traversing (default: false)
 
 ### RenderContext
 

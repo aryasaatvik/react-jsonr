@@ -42,6 +42,7 @@ export interface TransformVisitor {
  */
 export interface TransformOptions {
   order?: 'depthFirstPre' | 'depthFirstPost' | 'breadthFirst';
+  clone?: boolean;  // Whether to clone the input object before transforming (default: true)
 }
 
 /**
