@@ -1,0 +1,306 @@
+---
+title: Plugin Usage Examples
+description: Examples of useful plugins for enhancing React JSONR
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+
+## 1. Internationalization Plugin
+
+This plugin translates text content using a translation dictionary:
+
+```tsx
+// Translation dictionary
+const translations = {
+  en: {
+    'welcome': 'Welcome to our app',
+    'description': 'This app uses React JSONR to render UI from JSON',
+    'submit': 'Submit',
+    'cancel': 'Cancel'
+  },
+  es: {
+    'welcome': 'Bienvenido a nuestra aplicación',
+    'description': 'Esta aplicación utiliza React JSONR para renderizar UI desde JSON',
+    'submit': 'Enviar',
+    'cancel': 'Cancelar'
+  },
+  fr: {
+    'welcome': 'Bienvenue dans notre application',
+    'description': 'Cette application utilise React JSONR pour afficher l\'interface à partir de JSON',
+    'submit': 'Soumettre',
+    'cancel': 'Annuler'
+  }
+};
+
+// A plugin that translates text based on language code
+const TranslationPlugin = (language = 'en') => ({
+  enter(node, context) {
+    const langDict = translations[language] || translations.en;
+    
+    // Handle direct text props
+    if (node.props?.text && typeof node.props.text === 'string') {
+      const key = node.props.text;
+      if (langDict[key]) {
+        node.props.text = langDict[key];
+      }
+    }
+    
+    // Handle children text
+    if (node.props?.children && typeof node.props.children === 'string') {
+      const key = node.props.children;
+      if (langDict[key]) {
+        node.props.children = langDict[key];
+      }
+    }
+    
+    // Handle label props for buttons
+    if (node.type === 'Button' && node.props?.label) {
+      const key = node.props.label;
+      if (langDict[key]) {
+        node.props.label = langDict[key];
+      }
+    }
+  }
+});
+
+// Usage
+const transformed = await transformJsonTree(jsonUI, [
+  TranslationPlugin('es') // Use Spanish translations
+]);
+```
+
+## 2. Theme Injection Plugin
+
+This plugin adds theme-based styling to components:
+
+```tsx
+// Theme definitions
+const themes = {
+  light: {
+    button: { 
+      backgroundColor: '#3b82f6', 
+      color: 'white',
+      borderRadius: '4px' 
+    },
+    input: { 
+      borderColor: '#d1d5db', 
+      backgroundColor: 'white',
+      borderRadius: '4px' 
+    },
+    form: {
+      backgroundColor: '#f9fafb',
+      padding: '1rem',
+      borderRadius: '8px'
+    }
+  },
+  dark: {
+    button: { 
+      backgroundColor: '#1f2937', 
+      color: 'white',
+      borderRadius: '4px' 
+    },
+    input: { 
+      borderColor: '#4b5563', 
+      backgroundColor: '#111827',
+      color: 'white',
+      borderRadius: '4px' 
+    },
+    form: {
+      backgroundColor: '#1f2937',
+      padding: '1rem',
+      borderRadius: '8px',
+      color: 'white'
+    }
+  }
+};
+
+// Theme injection plugin
+const ThemePlugin = (themeName = 'light') => ({
+  enter(node, context) {
+    const theme = themes[themeName] || themes.light;
+    
+    // No props? Create them
+    if (!node.props) {
+      node.props = {};
+    }
+    
+    // No style? Create it
+    if (!node.props.style) {
+      node.props.style = {};
+    }
+    
+    // Apply theme based on component type
+    switch(node.type) {
+      case 'Button':
+        node.props.style = { ...node.props.style, ...theme.button };
+        break;
+      case 'Input':
+        node.props.style = { ...node.props.style, ...theme.input };
+        break;
+      case 'Form':
+        node.props.style = { ...node.props.style, ...theme.form };
+        break;
+    }
+  }
+});
+
+// Usage
+const transformed = await transformJsonTree(jsonUI, [
+  ThemePlugin('dark') // Use dark theme
+]);
+```
+
+## 3. Analytics Tagging Plugin
+
+This plugin adds data attributes for analytics tracking:
+
+```tsx
+const AnalyticsPlugin = (pageSection = 'main') => ({
+  enter(node, context) {
+    if (!node.props) {
+      node.props = {};
+    }
+    
+    // Add analytics data attributes
+    node.props['data-analytics'] = 'true';
+    node.props['data-section'] = pageSection;
+    
+    // Add specific tracking for interactive elements
+    if (node.props.onClick) {
+      node.props['data-track'] = 'click';
+      node.props['data-element-type'] = node.type;
+      
+      // Generate an ID if none exists
+      if (!node.props.id) {
+        node.props.id = `${pageSection}-${node.type}-${context.index}`;
+      }
+      
+      // Add the ID as a tracking property
+      node.props['data-element-id'] = node.props.id;
+    }
+    
+    // Add form tracking
+    if (node.type === 'Form') {
+      node.props['data-track'] = 'form-interaction';
+      node.props['data-form-name'] = node.props.title || 'unknown-form';
+    }
+  }
+});
+
+// Usage
+const transformed = await transformJsonTree(jsonUI, [
+  AnalyticsPlugin('checkout') // Add checkout section analytics
+]);
+```
+
+## 4. Validation Plugin
+
+This plugin adds validation to form elements:
+
+```tsx
+const ValidationPlugin = {
+  enter(node, context) {
+    if (!node.props) {
+      node.props = {};
+    }
+    
+    // Add validation rules to input fields
+    if (node.type === 'Input') {
+      const { name, type } = node.props;
+      
+      // Email validation
+      if (type === 'email') {
+        node.props.pattern = '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$';
+        node.props['data-error-message'] = 'Please enter a valid email address';
+      }
+      
+      // Required fields
+      if (node.props.required) {
+        node.props['aria-required'] = 'true';
+        
+        if (!node.props['data-error-message']) {
+          node.props['data-error-message'] = `${node.props.label} is required`;
+        }
+      }
+      
+      // Password validation
+      if (type === 'password') {
+        node.props.minLength = 8;
+        node.props['data-error-message'] = 'Password must be at least 8 characters';
+      }
+    }
+  }
+};
+
+// Usage
+const transformed = await transformJsonTree(jsonUI, [ValidationPlugin]);
+```
+
+## Combining Multiple Plugins
+
+<Steps>
+  <Step>
+    Define your plugins, each with a focused purpose
+  </Step>
+  <Step>
+    Arrange them in the desired order (plugins run in sequence)
+  </Step>
+  <Step>
+    Apply them all at once in the transformation pipeline
+  </Step>
+</Steps>
+
+```tsx
+// Example of combining multiple plugins
+const transformed = await transformJsonTree(jsonUI, [
+  AuthorizationPlugin(user), // First, filter out elements the user can't see
+  TranslationPlugin(userLanguage), // Then, translate the remaining text
+  ValidationPlugin, // Add form validation
+  ThemePlugin(userTheme), // Apply theme styling
+  AnalyticsPlugin(currentSection) // Finally, add analytics tracking
+]);
+
+// Then render as usual
+const element = renderNode(transformed, registry, { eventHandlers });
+```
+
+<Callout type="tip">
+  Plugins are applied in sequence, so order matters. Each plugin sees the changes made by previous plugins.
+</Callout>
+
+## Creating Your Own Plugins
+
+To create your own plugin, implement the `TransformVisitor` interface:
+
+```tsx
+// Basic plugin template
+const MyPlugin = {
+  // Called when a node is first visited (before processing children)
+  enter(node, context) {
+    // Modify the node here
+    console.log(`Visiting ${node.type} at depth ${context.depth}`);
+    
+    // Skip children if needed
+    // context.skipChildren();
+  },
+  
+  // Called after all children have been processed (optional)
+  exit(node, context) {
+    // Do post-processing here
+    console.log(`Finished processing ${node.type}`);
+  }
+};
+```
+
+For async operations, make your methods async:
+
+```tsx
+const AsyncPlugin = {
+  async enter(node, context) {
+    // Fetch data, process asynchronously, etc.
+    const data = await fetchSomeData();
+    node.props.data = data;
+  }
+};
+``` 

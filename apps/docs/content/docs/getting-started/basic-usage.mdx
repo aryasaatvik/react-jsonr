@@ -1,0 +1,111 @@
+---
+title: Basic Usage
+description: React JSONR allows you to render React components from JSON definitions. This guide will walk you through the basics of using the library.
+---
+
+## Core Concepts
+
+Before diving into the code, let's understand the core concepts of React JSONR:
+
+1. **JSON Node**: A JSON structure describing a component, its props, and children
+2. **Component Registry**: A mapping of component types to their implementations
+3. **Event Handler Mapping**: A way to safely map string references to actual functions
+4. **Transformation Pipeline**: A system to process and modify the JSON before rendering
+5. **Plugins**: Modular transformers that can alter the JSON tree
+
+## Simple Example
+
+Let's start with a simple example of rendering a contact form from JSON:
+
+```tsx
+import React, { useState, useEffect } from 'react';
+import { renderNode, transformJsonTree } from 'react-jsonr';
+
+// Define your components
+const Form = ({ title, children, ...props }) => (
+  <form {...props}>
+    <h2>{title}</h2>
+    <div className="form-body">{children}</div>
+  </form>
+);
+
+const Input = ({ label, name, type = 'text', ...props }) => (
+  <div className="form-group">
+    <label htmlFor={name}>{label}</label>
+    <input id={name} name={name} type={type} {...props} />
+  </div>
+);
+
+const Button = ({ label, ...props }) => (
+  <button type="button" {...props}>{label}</button>
+);
+
+// 1. Create a component registry (whitelist of allowed components)
+const registry = {
+  Form,
+  Input,
+  Button,
+};
+
+// 2. Define event handlers that can be referenced from JSON
+const eventHandlers = {
+  submitForm: () => {
+    alert('Form submitted!');
+  }
+};
+
+// 3. Define your UI as JSON
+const jsonDefinition = {
+  type: 'Form',
+  props: { title: 'Contact Us' },
+  children: [
+    { 
+      type: 'Input',
+      props: { name: 'email', label: 'Email', type: 'email' }
+    },
+    { 
+      type: 'Button',
+      props: { label: 'Submit', onClick: 'submitForm' }
+    }
+  ]
+};
+
+function App() {
+  const [uiElement, setUiElement] = useState(null);
+
+  useEffect(() => {
+    async function buildUI() {
+      // 4. (Optional) Transform the JSON using plugins
+      const transformed = await transformJsonTree(jsonDefinition, []);
+      
+      // 5. Render the JSON to React elements
+      const element = renderNode(transformed, registry, { eventHandlers });
+      
+      setUiElement(element);
+    }
+    
+    buildUI();
+  }, []);
+
+  return <div className="app">{uiElement}</div>;
+}
+```
+
+## Step-by-Step Breakdown
+
+1. **Import the library**: Import `renderNode` and `transformJsonTree` from react-jsonr
+2. **Define or import your components**: These are the React components that will be referenced in your JSON
+3. **Create a component registry**: This maps type names in JSON to actual React components
+4. **Define event handlers**: Functions that can be referenced by string names in your JSON
+5. **Create the JSON definition**: Describe your UI structure using JSON nodes
+6. **Transform the JSON** (optional): Apply plugins to modify the JSON before rendering
+7. **Render to React elements**: Use `renderNode` to convert the JSON into React elements
+8. **Use the elements**: Render the generated elements in your React application
+
+## What's Next
+
+Now that you understand the basics, you can:
+
+- Learn about [using plugins](/docs/plugins) to enhance your JSON
+- Check out more [advanced examples](/docs/examples)
+- Explore the [API reference](/docs/api) 

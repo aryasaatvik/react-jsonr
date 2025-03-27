@@ -1,0 +1,64 @@
+---
+title: Examples
+description: Practical examples of using React JSONR
+---
+
+This section provides practical examples of using React JSONR in various scenarios. Each example demonstrates different features and use cases of the library.
+
+## Available Examples
+
+<Cards>
+  <Card title="Contact Form" href="/docs/examples/contact-form" />
+  <Card title="Dynamic User Profile" href="/docs/examples/user-profile" />
+  <Card title="Plugin Usage" href="/docs/examples/plugin-usage" />
+  <Card title="Advanced Patterns" href="/docs/examples/advanced-patterns" />
+</Cards>
+
+## Example Components
+
+All examples in this section use the following common components:
+
+```tsx
+// Form component
+const Form = ({ title, children, ...props }) => (
+  <form {...props}>
+    <h2>{title}</h2>
+    <div className="form-body">{children}</div>
+  </form>
+);
+
+// Input component
+const Input = ({ label, name, type = 'text', ...props }) => (
+  <div className="form-group">
+    <label htmlFor={name}>{label}</label>
+    {type === 'textarea' ? (
+      <textarea id={name} name={name} {...props} />
+    ) : (
+      <input id={name} name={name} type={type} {...props} />
+    )}
+  </div>
+);
+
+// Button component
+const Button = ({ label, type = 'button', ...props }) => (
+  <button type={type} {...props}>{label}</button>
+);
+
+// Text component
+const Text = ({ text, ...props }) => <p {...props}>{text}</p>;
+```
+
+These components are registered in a component registry for use with React JSONR:
+
+```tsx
+const registry = {
+  Form,
+  Input,
+  Button,
+  Text,
+  div: 'div',
+  h1: 'h1',
+  p: 'p',
+  // ... other HTML elements as needed
+};
+``` 

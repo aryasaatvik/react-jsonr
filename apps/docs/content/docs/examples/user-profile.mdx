@@ -1,0 +1,241 @@
+---
+title: Dynamic User Profile Example
+description: Building a user profile UI with asynchronous data fetching
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+This example demonstrates how to create a dynamic user profile UI that fetches user data asynchronously and renders different content based on the user's role.
+
+## Components
+
+First, let's define our custom components for the user profile:
+
+```tsx
+// UserProfile component
+const UserProfile = ({ user, children, ...props }) => (
+  <div className="user-profile" {...props}>
+    <div className="profile-header">
+      <img src={user?.avatar || '/default-avatar.png'} alt="User avatar" />
+      <h2>{user?.name || 'Loading...'}</h2>
+      {user?.role && <span className="role-badge">{user.role}</span>}
+    </div>
+    <div className="profile-content">
+      {children}
+    </div>
+  </div>
+);
+
+// ProfileSection component
+const ProfileSection = ({ title, children, ...props }) => (
+  <div className="profile-section" {...props}>
+    <h3>{title}</h3>
+    <div className="section-content">{children}</div>
+  </div>
+);
+
+// AdminPanel component (only shown for admins)
+const AdminPanel = ({ user, ...props }) => (
+  <div className="admin-panel" {...props}>
+    <h4>Admin Panel</h4>
+    <div>User ID: {user.id}</div>
+    <div>Access Level: {user.accessLevel}</div>
+    <div>Last Login: {user.lastLogin}</div>
+    <button className="admin-action">Access Logs</button>
+    <button className="admin-action">Manage Permissions</button>
+  </div>
+);
+
+// Text component
+const Text = ({ text, ...props }) => <p {...props}>{text}</p>;
+```
+
+## Registry and Event Handlers
+
+```tsx
+// Register our components
+const registry = {
+  UserProfile,
+  ProfileSection,
+  AdminPanel,
+  Text,
+  div: 'div',
+  span: 'span',
+  h4: 'h4',
+  button: 'button',
+};
+
+// Define event handlers
+const eventHandlers = {
+  editProfile: () => {
+    alert('Edit profile clicked!');
+  },
+  logout: () => {
+    alert('Logout clicked!');
+  }
+};
+```
+
+## JSON Definition
+
+```tsx
+// Initial JSON definition (before data is fetched)
+const userProfileJson = {
+  type: 'UserProfile',
+  props: { userId: '123' }, // We'll fetch the user data based on this ID
+  children: [
+    {
+      type: 'Text',
+      props: { text: 'Loading user information...' }
+    }
+  ]
+};
+```
+
+## Async Data Fetching Plugin
+
+The key part of this example is a plugin that fetches user data and updates the JSON:
+
+```tsx
+// Simulated API function
+async function fetchUserData(userId) {
+  // Simulate API call with a delay
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: userId,
+        name: 'Jane Smith',
+        role: 'Admin',
+        email: 'jane@example.com',
+        avatar: 'https://randomuser.me/api/portraits/women/42.jpg',
+        bio: 'Product manager with 5+ years experience in SaaS products.',
+        accessLevel: 'Full',
+        lastLogin: '2023-03-27T15:30:00Z',
+        isAdmin: true
+      });
+    }, 1000);
+  });
+}
+
+// Plugin that fetches and injects user data
+const UserDataPlugin = {
+  async enter(node, context) {
+    if (node.type === 'UserProfile' && node.props?.userId) {
+      const userId = node.props.userId;
+      
+      // Fetch user data
+      const userData = await fetchUserData(userId);
+      
+      // Update the node with user data
+      node.props.user = userData;
+      
+      // Replace the children with actual profile content
+      node.children = [
+        {
+          type: 'ProfileSection',
+          props: { title: 'Bio' },
+          children: [
+            {
+              type: 'Text',
+              props: { text: userData.bio }
+            }
+          ]
+        },
+        {
+          type: 'ProfileSection',
+          props: { title: 'Contact' },
+          children: [
+            {
+              type: 'Text',
+              props: { text: `Email: ${userData.email}` }
+            }
+          ]
+        },
+        {
+          type: 'div',
+          props: { className: 'profile-actions' },
+          children: [
+            {
+              type: 'button',
+              props: { onClick: 'editProfile', children: 'Edit Profile' }
+            },
+            {
+              type: 'button',
+              props: { onClick: 'logout', children: 'Logout' }
+            }
+          ]
+        }
+      ];
+      
+      // Add admin panel for admin users
+      if (userData.isAdmin) {
+        node.children.push({
+          type: 'AdminPanel',
+          props: { user: userData }
+        });
+      }
+    }
+  }
+};
+```
+
+## Complete Example
+
+Here's how to put it all together:
+
+```tsx
+import React, { useState, useEffect } from 'react';
+import { renderNode, transformJsonTree } from 'react-jsonr';
+
+function UserProfileExample() {
+  const [profileElement, setProfileElement] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function renderProfile() {
+      try {
+        setLoading(true);
+        
+        // Transform the JSON with our data-fetching plugin
+        const transformed = await transformJsonTree(userProfileJson, [UserDataPlugin]);
+        
+        // Render the transformed JSON to React elements
+        const element = renderNode(transformed, registry, { eventHandlers });
+        
+        setProfileElement(element);
+      } catch (error) {
+        console.error('Error rendering profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    renderProfile();
+  }, []);
+
+  if (loading) {
+    return <div className="loading-spinner">Loading profile...</div>;
+  }
+
+  return (
+    <div className="profile-container">
+      {profileElement}
+    </div>
+  );
+}
+
+export default UserProfileExample;
+```
+
+<Callout type="tip">
+  The real power of this approach is that the UI structure is determined at runtime based on data. Different user roles can see completely different interfaces without additional code.
+</Callout>
+
+## Key Points
+
+1. **Async Data Fetching**: The `UserDataPlugin` fetches data and completely transforms the UI based on the response
+2. **Conditional Rendering**: Admin users see an additional AdminPanel component
+3. **Dynamic Children**: The plugin replaces the initial loading message with actual content
+4. **Clean Separation**: The UI structure is defined in JSON, separate from data fetching logic
+
+This pattern is particularly useful for dashboards or user interfaces that vary significantly based on user roles, permissions, or other dynamic data. 

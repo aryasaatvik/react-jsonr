@@ -1,0 +1,137 @@
+---
+title: Plugins
+description: Enhancing JSON with transformation plugins
+---
+
+One of the most powerful features of React JSONR is its plugin system. Plugins allow you to transform and enhance the JSON before it's rendered to React elements.
+
+## What Are Plugins?
+
+Plugins are visitors that get called for each node in your JSON tree. They can:
+
+- Modify nodes (change props, add/remove children)
+- Add data from external sources
+- Validate the JSON structure
+- Enforce patterns or add defaults
+- Skip subtrees for optimization
+
+## Plugin Interface
+
+A plugin implements the `TransformVisitor` interface:
+
+```typescript
+interface TransformVisitor {
+  enter?(node: JsonNode, context: TransformContext): void | Promise<void>;
+  exit?(node: JsonNode, context: TransformContext): void | Promise<void>;
+}
+
+interface TransformContext {
+  depth: number;
+  parent: JsonNode | null;
+  index: number;
+  skipChildren(): void;
+  [key: string]: any;
+}
+```
+
+Each plugin can have:
+- An `enter` method called when a node is first visited (before its children)
+- An `exit` method called after all children have been processed
+
+## Example Plugins
+
+### Auto ID Plugin
+
+This simple plugin adds an ID to any element without one:
+
+```typescript
+const AutoIdPlugin = {
+  enter(node, context) {
+    if (!node.props) {
+      node.props = {};
+    }
+    
+    if (!node.props.id) {
+      node.props.id = `auto-${node.type.toLowerCase()}-${context.index}`;
+    }
+  }
+};
+```
+
+### Data Fetching Plugin
+
+This async plugin fetches user data and updates the JSON:
+
+```typescript
+const UserDataPlugin = {
+  async enter(node, context) {
+    if (node.type === 'UserProfile' && node.props?.userId) {
+      const userId = node.props.userId;
+      
+      // Fetch user data from an API
+      const userData = await fetchUserData(userId);
+      
+      // Update the node with the fetched data
+      node.props.userData = userData;
+      
+      // We could also modify children based on the data
+      if (userData.isAdmin) {
+        node.children.push({
+          type: 'AdminPanel',
+          props: { userId }
+        });
+      }
+    }
+  }
+};
+```
+
+## Using Plugins
+
+To use plugins, pass them as an array to the `transformJsonTree` function:
+
+```typescript
+const transformed = await transformJsonTree(jsonDefinition, [
+  AutoIdPlugin,
+  UserDataPlugin
+]);
+
+const element = renderNode(transformed, registry, { eventHandlers });
+```
+
+Plugins are applied in the order they're provided, so later plugins will see the changes made by earlier ones.
+
+## Traversal Orders
+
+React JSONR supports different traversal strategies:
+
+```typescript
+// Default: Depth-first pre-order
+const transformed = await transformJsonTree(json, plugins);
+
+// With explicit traversal order
+const transformed = await transformJsonTree(json, plugins, {
+  order: 'depthFirstPre' // or 'depthFirstPost' or 'breadthFirst'
+});
+```
+
+- `depthFirstPre`: Processes a node, then its children (default)
+- `depthFirstPost`: Processes children first, then the node
+- `breadthFirst`: Processes all nodes at a given depth before moving deeper
+
+## Performance Optimization
+
+For large trees, you can optimize plugin execution by skipping subtrees:
+
+```typescript
+const OptimizationPlugin = {
+  enter(node, context) {
+    // If this is a large static subtree, skip processing its children
+    if (node.props?.static === true) {
+      context.skipChildren();
+    }
+  }
+};
+```
+
+This can significantly improve performance for complex UIs with static sections. 

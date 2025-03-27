@@ -1,0 +1,143 @@
+---
+title: API Reference
+description: Detailed documentation of React JSONR's API
+---
+
+## Core Functions
+
+### renderNode
+
+Renders a JSON node to a React element.
+
+```typescript
+function renderNode(
+  node: JsonNode,
+  registry: ComponentRegistry,
+  context?: RenderContext
+): React.ReactNode;
+```
+
+**Parameters:**
+- `node`: The JSON node to render
+- `registry`: A mapping of component types to React components
+- `context` (optional): Additional context, including event handlers
+
+**Returns:**
+- A React element (or null if the component type is not found in the registry)
+
+### transformJsonTree
+
+Transforms a JSON tree using the provided visitors/plugins.
+
+```typescript
+async function transformJsonTree(
+  root: JsonNode,
+  visitors: TransformVisitor[],
+  options?: TransformOptions
+): Promise<JsonNode>;
+```
+
+**Parameters:**
+- `root`: The root JSON node to transform
+- `visitors`: An array of transformation plugins
+- `options` (optional): Configuration options for the transformation
+
+**Returns:**
+- A promise that resolves to the transformed JSON tree
+
+## Types
+
+### JsonNode
+
+Represents a JSON node that can be rendered to a React component.
+
+```typescript
+interface JsonNode {
+  type: string;
+  props?: Record<string, any>;
+  children?: JsonNode[];
+  key?: string;
+  id?: string;
+}
+```
+
+**Properties:**
+- `type`: The component type name (must exist in the registry)
+- `props` (optional): Component props
+- `children` (optional): Child nodes
+- `key` (optional): React key for reconciliation
+- `id` (optional): Identifier for tracking or reference
+
+### ComponentRegistry
+
+A mapping of component types to React components.
+
+```typescript
+type ComponentRegistry = { 
+  [typeName: string]: React.ComponentType<any> | string 
+};
+```
+
+The keys are the type names used in JSON, and the values are either React components or strings (for native HTML elements).
+
+### TransformVisitor
+
+Plugin interface for transforming the JSON tree.
+
+```typescript
+interface TransformVisitor {
+  enter?(node: JsonNode, context: TransformContext): void | Promise<void>;
+  exit?(node: JsonNode, context: TransformContext): void | Promise<void>;
+}
+```
+
+**Methods:**
+- `enter`: Called when a node is first encountered (before processing children)
+- `exit`: Called after all children have been processed
+
+### TransformContext
+
+Context passed to transform visitors.
+
+```typescript
+interface TransformContext {
+  depth: number;
+  parent: JsonNode | null;
+  index: number;
+  skipChildren(): void;
+  [key: string]: any;
+}
+```
+
+**Properties:**
+- `depth`: Current depth in the tree
+- `parent`: Parent node (null for the root)
+- `index`: Index of this node in the parent's children array
+- `skipChildren()`: Function to skip traversing this node's children
+
+### TransformOptions
+
+Options for transform operations.
+
+```typescript
+interface TransformOptions {
+  order?: 'depthFirstPre' | 'depthFirstPost' | 'breadthFirst';
+}
+```
+
+**Properties:**
+- `order` (optional): Traversal order for the transformation
+
+### RenderContext
+
+Context for renderNode.
+
+```typescript
+interface RenderContext {
+  eventHandlers?: Record<string, Function>;
+  [key: string]: any;
+}
+```
+
+**Properties:**
+- `eventHandlers` (optional): Functions that can be referenced by string names in JSON 

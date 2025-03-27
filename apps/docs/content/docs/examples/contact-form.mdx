@@ -1,0 +1,174 @@
+---
+title: Contact Form Example
+description: Building a contact form with React JSONR
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Contact Form Example
+
+This example demonstrates how to create a contact form using React JSONR. We'll build a form with various input types and proper event handling.
+
+## Complete Example
+
+Here's the full implementation:
+
+```tsx
+import React, { useState, useEffect } from 'react';
+import { renderNode, transformJsonTree } from 'react-jsonr';
+import { Form, Input, Button } from './components';
+
+// Create a component registry
+const registry = {
+  Form,
+  Input,
+  Button,
+  div: 'div',
+  p: 'p',
+};
+
+// Define event handlers
+const eventHandlers = {
+  submitForm: (e) => {
+    e.preventDefault();
+    alert('Form submitted!');
+  },
+  handleNameChange: (e) => {
+    console.log('Name changed:', e.target.value);
+  },
+  handleEmailChange: (e) => {
+    console.log('Email changed:', e.target.value);
+  },
+  handleMessageChange: (e) => {
+    console.log('Message changed:', e.target.value);
+  }
+};
+
+// Define the JSON for the contact form
+const contactFormJson = {
+  type: 'div',
+  props: { className: 'container' },
+  children: [
+    {
+      type: 'Form',
+      props: { title: 'Contact Us', onSubmit: 'submitForm' },
+      children: [
+        { 
+          type: 'Input', 
+          props: { 
+            name: 'name', 
+            label: 'Your Name', 
+            required: true,
+            placeholder: 'John Doe',
+            onChange: 'handleNameChange'
+          } 
+        },
+        { 
+          type: 'Input', 
+          props: { 
+            name: 'email', 
+            label: 'Email Address', 
+            type: 'email', 
+            required: true,
+            placeholder: 'john@example.com',
+            onChange: 'handleEmailChange'
+          } 
+        },
+        { 
+          type: 'Input', 
+          props: { 
+            name: 'message', 
+            label: 'Your Message', 
+            type: 'textarea',
+            required: true,
+            placeholder: 'Enter your message here...',
+            onChange: 'handleMessageChange'
+          } 
+        },
+        { 
+          type: 'Button', 
+          props: { 
+            label: 'Send Message', 
+            type: 'submit'
+          } 
+        }
+      ]
+    },
+    {
+      type: 'p',
+      props: { 
+        className: 'disclaimer',
+        children: 'We\'ll never share your email with anyone else.'
+      }
+    }
+  ]
+};
+
+// Create a plugin that adds IDs to form elements
+const AutoIdPlugin = {
+  enter(node, context) {
+    if (!node.props) {
+      node.props = {};
+    }
+    
+    if (node.type === 'Input' && !node.props.id) {
+      node.props.id = `contact-${node.props.name || context.index}`;
+    }
+  }
+};
+
+function ContactFormExample() {
+  const [formElement, setFormElement] = useState(null);
+
+  useEffect(() => {
+    async function renderForm() {
+      try {
+        // Transform the JSON using our plugin
+        const transformed = await transformJsonTree(contactFormJson, [AutoIdPlugin]);
+        
+        // Render the JSON to React elements
+        const element = renderNode(transformed, registry, { eventHandlers });
+        
+        setFormElement(element);
+      } catch (error) {
+        console.error('Error rendering form:', error);
+      }
+    }
+    
+    renderForm();
+  }, []);
+
+  return formElement || <div>Loading form...</div>;
+}
+
+export default ContactFormExample;
+```
+
+## Result
+
+The code above would render a fully functional contact form like this:
+
+- A form titled "Contact Us"
+- Input fields for name, email, and a textarea for the message
+- A submit button that shows an alert when clicked
+- A disclaimer text below the form
+- Console logs when input values change
+
+<Callout type="info">
+  All input elements have automatically generated IDs thanks to our `AutoIdPlugin`.
+</Callout>
+
+## Key Points
+
+1. **JSON Structure**: The form is defined entirely in JSON, making it easy to modify or generate dynamically
+2. **Event Handling**: Form submission and input changes are handled via named event handlers
+3. **Plugin Usage**: The `AutoIdPlugin` adds IDs to input elements, demonstrating how plugins can enhance the JSON
+4. **HTML Elements**: Native HTML elements like `div` and `p` are registered alongside custom components
+
+## Extended Use Cases
+
+This pattern is particularly useful for:
+
+- **CMS-driven forms**: Store form definitions in a CMS and render them dynamically
+- **A/B testing**: Easily swap between different form layouts without changing code
+- **Dynamic forms**: Generate form fields based on user data or application state 
