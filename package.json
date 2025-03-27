@@ -1,0 +1,33 @@
+{
+  "name": "react-jsonr-monorepo",
+  "version": "0.0.0",
+  "description": "Monorepo for React JSONR - a plugin-based JSON to React component renderer",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm --filter react-jsonr dev",
+    "build": "pnpm --filter react-jsonr build",
+    "test": "pnpm --filter react-jsonr test",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:start": "pnpm --filter docs start",
+    "build:all": "pnpm --filter react-jsonr build && pnpm --filter docs build",
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'dist' -type d -prune -exec rm -rf '{}' +",
+    "sherif": "sherif"
+  },
+  "keywords": [
+    "react",
+    "json",
+    "renderer",
+    "component",
+    "dynamic",
+    "ui"
+  ],
+  "author": "Saatvik Arya <aryasaatvik@gmail.com>",
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
+  "devDependencies": {
+    "sherif": "^1.4.0",
+    "turbo": "^2.4.4"
+  },
+  "private": true
+}
