@@ -1,6 +1,6 @@
 {
   "name": "react-jsonr",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A plugin-based JSON to React component renderer",
   "type": "module",
   "module": "dist/index.js",
