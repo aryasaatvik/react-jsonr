@@ -3,6 +3,7 @@ import { ArrowRight, Code, Layers, Zap } from 'lucide-react';
 import { ReactNode } from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
+import GithubIcon from '@/components/github-icon';
 
 export default function HomePage() {
   return (
@@ -30,6 +31,7 @@ export default function HomePage() {
               target="_blank"
               rel="noopener noreferrer"
             >
+              <GithubIcon />
               GitHub
             </Link>
             {/*  show a 1536x812 diagram of the library */}
