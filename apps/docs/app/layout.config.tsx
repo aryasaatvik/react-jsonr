@@ -16,6 +16,7 @@ export const baseOptions: BaseLayoutProps = {
       </>
     ),
   },
+  githubUrl: 'https://github.com/aryasaatvik/react-jsonr',
   links: [
     {
       text: 'Documentation',

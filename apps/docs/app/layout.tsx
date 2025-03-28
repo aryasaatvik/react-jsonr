@@ -1,11 +1,17 @@
 import './global.css';
 import { RootProvider } from 'fumadocs-ui/provider';
+import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import type { ReactNode } from 'react';
 
 const inter = Inter({
   subsets: ['latin'],
 });
+
+export const metadata: Metadata = {
+  title: 'React JSONR',
+  description: 'React JSONR',
+};
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
