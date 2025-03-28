@@ -4,14 +4,14 @@
   "description": "Monorepo for React JSONR - a plugin-based JSON to React component renderer",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm --filter react-jsonr dev",
-    "build": "pnpm --filter react-jsonr build",
-    "test": "pnpm --filter react-jsonr test",
-    "docs:dev": "pnpm --filter docs dev",
-    "docs:build": "pnpm --filter docs build",
-    "docs:start": "pnpm --filter docs start",
-    "build:all": "pnpm --filter react-jsonr build && pnpm --filter docs build",
-    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'dist' -type d -prune -exec rm -rf '{}' +",
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules",
+    "docs:dev": "turbo dev --filter docs",
+    "docs:build": "turbo build --filter docs",
+    "docs:start": "turbo start --filter docs",
     "sherif": "sherif"
   },
   "keywords": [
