@@ -9,7 +9,7 @@ import type { JsonNode, ComponentRegistry } from 'react-jsonr';
 
 // Define the components that will be used in the JSON
 const Avatar = ({ src, size }: { src: string; size: string }) => (
-  <div className={`h-${size === 'large' ? '16' : '12'} w-${size === 'large' ? '16' : '12'} rounded-full bg-fd-primary/20 flex items-center justify-center`}>
+  <div className={`h-${size === 'large' ? '16' : '12'} w-${size === 'large' ? '16' : '12'} rounded-full p-2 bg-fd-primary/20 flex items-center justify-center`}>
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2"/>
       <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" strokeWidth="2"/>
@@ -39,14 +39,6 @@ const userProfileJson: JsonNode = {
     className: 'bg-fd-card text-fd-card-foreground p-6 rounded-lg border border-fd-border' 
   },
   children: [
-    {
-      type: 'h2',
-      props: { className: 'text-xl font-semibold mb-4' },
-      children: [{
-        type: 'text',
-        props: { content: 'User Profile' }
-      }]
-    },
     {
       type: 'div',
       props: { className: 'flex items-center gap-4' },
