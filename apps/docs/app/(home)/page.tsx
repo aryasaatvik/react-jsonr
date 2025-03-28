@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Code, Layers, Zap } from 'lucide-react';
 import { ReactNode } from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 
 export default function HomePage() {
   return (
@@ -31,6 +32,8 @@ export default function HomePage() {
             >
               GitHub
             </Link>
+            {/*  show a 1536x812 diagram of the library */}
+            <ImageZoom src="/diagram.png" width={768} height={406} alt="React JSONR Diagram" />
           </div>
         </section>
         
