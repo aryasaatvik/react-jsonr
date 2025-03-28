@@ -10,7 +10,18 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'React JSONR',
-  description: 'React JSONR',
+  description: 'A powerful, extensible library for building dynamic UI from declarative definitions.',
+  openGraph: {
+    title: 'React JSONR',
+    description: 'A powerful, extensible library for building dynamic UI from declarative definitions.',
+    url: 'https://jsonr.arya.sh',
+    siteName: 'React JSONR',
+    images: [
+      {
+        url: 'https://jsonr.arya.sh/og.png',
+      },
+    ],
+  },
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
