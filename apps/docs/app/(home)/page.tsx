@@ -4,8 +4,8 @@ import { ReactNode } from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import GithubIcon from '@/components/github-icon';
-import { renderNode, transformJsonTree } from 'react-jsonr';
-import type { JsonNode, ComponentRegistry, TransformVisitor } from 'react-jsonr';
+import { renderNode } from 'react-jsonr';
+import type { JsonNode, ComponentRegistry } from 'react-jsonr';
 
 // Define the components that will be used in the JSON
 const Avatar = ({ src, size }: { src: string; size: string }) => (
@@ -32,16 +32,16 @@ const registry: ComponentRegistry = {
   ProfileInfo
 };
 
-// Define the JSON structure
+// Define the JSON structure with Tailwind classes directly
 const userProfileJson: JsonNode = {
   type: 'div',
   props: { 
-    className: 'card' 
+    className: 'bg-fd-card text-fd-card-foreground p-6 rounded-lg border border-fd-border' 
   },
   children: [
     {
       type: 'h2',
-      props: { className: 'title' },
+      props: { className: 'text-xl font-semibold mb-4' },
       children: [{
         type: 'text',
         props: { content: 'User Profile' }
@@ -49,7 +49,7 @@ const userProfileJson: JsonNode = {
     },
     {
       type: 'div',
-      props: { className: 'content' },
+      props: { className: 'flex items-center gap-4' },
       children: [
         {
           type: 'Avatar',
@@ -70,28 +70,8 @@ const userProfileJson: JsonNode = {
   ]
 };
 
-// Create a visitor to add some styling
-const styleVisitor: TransformVisitor = {
-  enter: (node) => {
-    if (!node.props) node.props = {};
-    if (node.type === 'div' && node.props.className === 'card') {
-      node.props.className = 'bg-fd-card text-fd-card-foreground p-6 rounded-lg border border-fd-border';
-    }
-    if (node.type === 'h2' && node.props.className === 'title') {
-      node.props.className = 'text-xl font-semibold mb-4';
-    }
-    if (node.type === 'div' && node.props.className === 'content') {
-      node.props.className = 'flex items-center gap-4';
-    }
-  }
-};
-
 export default async function HomePage() {
-  // Transform the JSON tree
-  const transformedTree = await transformJsonTree(userProfileJson, [styleVisitor]);
-  
-  // Render the transformed tree
-  const renderedProfile = renderNode(transformedTree, registry);
+  const renderedProfile = renderNode(userProfileJson, registry);
 
   return (
     <main className="flex flex-1 flex-col items-center py-12 px-4">
