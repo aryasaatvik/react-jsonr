@@ -4,8 +4,95 @@ import { ReactNode } from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import GithubIcon from '@/components/github-icon';
+import { renderNode, transformJsonTree } from 'react-jsonr';
+import type { JsonNode, ComponentRegistry, TransformVisitor } from 'react-jsonr';
 
-export default function HomePage() {
+// Define the components that will be used in the JSON
+const Avatar = ({ src, size }: { src: string; size: string }) => (
+  <div className={`h-${size === 'large' ? '16' : '12'} w-${size === 'large' ? '16' : '12'} rounded-full bg-fd-primary/20 flex items-center justify-center`}>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2"/>
+      <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" strokeWidth="2"/>
+    </svg>
+  </div>
+);
+
+const ProfileInfo = ({ name, role }: { name: string; role: string }) => (
+  <div>
+    <h3 className="font-medium">{name}</h3>
+    <p className="text-fd-muted-foreground text-sm">{role}</p>
+  </div>
+);
+
+// Create the component registry
+const registry: ComponentRegistry = {
+  div: 'div',
+  h2: 'h2',
+  Avatar,
+  ProfileInfo
+};
+
+// Define the JSON structure
+const userProfileJson: JsonNode = {
+  type: 'div',
+  props: { 
+    className: 'card' 
+  },
+  children: [
+    {
+      type: 'h2',
+      props: { className: 'title' },
+      children: [{
+        type: 'text',
+        props: { content: 'User Profile' }
+      }]
+    },
+    {
+      type: 'div',
+      props: { className: 'content' },
+      children: [
+        {
+          type: 'Avatar',
+          props: { 
+            src: '/avatar.png',
+            size: 'large'
+          }
+        },
+        {
+          type: 'ProfileInfo',
+          props: { 
+            name: 'Jane Doe',
+            role: 'Developer'
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Create a visitor to add some styling
+const styleVisitor: TransformVisitor = {
+  enter: (node) => {
+    if (!node.props) node.props = {};
+    if (node.type === 'div' && node.props.className === 'card') {
+      node.props.className = 'bg-fd-card text-fd-card-foreground p-6 rounded-lg border border-fd-border';
+    }
+    if (node.type === 'h2' && node.props.className === 'title') {
+      node.props.className = 'text-xl font-semibold mb-4';
+    }
+    if (node.type === 'div' && node.props.className === 'content') {
+      node.props.className = 'flex items-center gap-4';
+    }
+  }
+};
+
+export default async function HomePage() {
+  // Transform the JSON tree
+  const transformedTree = await transformJsonTree(userProfileJson, [styleVisitor]);
+  
+  // Render the transformed tree
+  const renderedProfile = renderNode(transformedTree, registry);
+
   return (
     <main className="flex flex-1 flex-col items-center py-12 px-4">
       <div className="max-w-5xl w-full space-y-16">
@@ -116,39 +203,7 @@ const element = renderNode(jsonDefinition, registry, {
               <div className="bg-fd-card text-fd-card-foreground p-4 rounded-lg border border-fd-border overflow-auto md:flex-1">
                 <DynamicCodeBlock 
                   lang="json" 
-                  code={`{
-  "type": "div",
-  "props": { 
-    "className": "card" 
-  },
-  "children": [
-    {
-      "type": "h2",
-      "props": { "className": "title" },
-      "children": "User Profile"
-    },
-    {
-      "type": "div",
-      "props": { "className": "content" },
-      "children": [
-        {
-          "type": "Avatar",
-          "props": { 
-            "src": "/avatar.png",
-            "size": "large"
-          }
-        },
-        {
-          "type": "ProfileInfo",
-          "props": { 
-            "name": "Jane Doe",
-            "role": "Developer"
-          }
-        }
-      ]
-    }
-  ]
-}`} 
+                  code={JSON.stringify(userProfileJson, null, 2)} 
                 />
               </div>
               <div className="flex justify-center">
@@ -157,21 +212,7 @@ const element = renderNode(jsonDefinition, registry, {
             </div>
             
             <div className="bg-fd-card text-fd-card-foreground p-6 rounded-lg border border-fd-border">
-              <div className="card">
-                <h2 className="text-xl font-semibold mb-4">User Profile</h2>
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-full bg-fd-primary/20 flex items-center justify-center">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Jane Doe</h3>
-                    <p className="text-fd-muted-foreground text-sm">Developer</p>
-                  </div>
-                </div>
-              </div>
+              {renderedProfile}
             </div>
           </div>
         </section>
