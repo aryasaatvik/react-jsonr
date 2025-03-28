@@ -70,24 +70,12 @@ const jsonDefinition = {
   ]
 };
 
+const transformed = await transformJsonTree(jsonDefinition, []);
+
+const element = renderNode(transformed, registry, { eventHandlers });
+
 function App() {
-  const [uiElement, setUiElement] = useState(null);
-
-  useEffect(() => {
-    async function buildUI() {
-      // 4. (Optional) Transform the JSON using plugins
-      const transformed = await transformJsonTree(jsonDefinition, []);
-      
-      // 5. Render the JSON to React elements
-      const element = renderNode(transformed, registry, { eventHandlers });
-      
-      setUiElement(element);
-    }
-    
-    buildUI();
-  }, []);
-
-  return <div className="app">{uiElement}</div>;
+  return <div className="app">{element}</div>;
 }
 ```
 
