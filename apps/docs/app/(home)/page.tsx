@@ -40,10 +40,12 @@ const userProfileJson: JsonNode = {
   },
   children: [
     {
+      key: 'user-profile',
       type: 'div',
       props: { className: 'flex items-center gap-4' },
       children: [
         {
+          key: 'avatar',
           type: 'Avatar',
           props: { 
             src: '/avatar.png',
@@ -51,6 +53,7 @@ const userProfileJson: JsonNode = {
           }
         },
         {
+          key: 'profile-info',
           type: 'ProfileInfo',
           props: { 
             name: 'Jane Doe',
