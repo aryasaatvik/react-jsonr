@@ -3,6 +3,7 @@ import { bench, describe } from 'vitest';
 import { transformJsonTree } from '../src/transformation';
 import { renderNode } from '../src/rendering';
 import type { JsonNode, TransformVisitor } from '../src/types';
+import { isComponentNode } from '../src/types';
 
 // Create a sample small JSON tree
 const smallTree: JsonNode = {
@@ -38,27 +39,33 @@ const largeTree = createLargeTree(4, 4);  // ~250+ nodes
 // Simple visitor for benchmarking
 const simpleVisitor: TransformVisitor = {
   enter: (node) => {
-    if (!node.props) node.props = {};
-    node.props['data-test'] = true;
+    if (isComponentNode(node)) {
+      if (!node.props) node.props = {};
+      node.props['data-test'] = true;
+    }
   }
 };
 
 // Complex visitor with more operations
 const complexVisitor: TransformVisitor = {
   enter: (node, context) => {
-    if (!node.props) node.props = {};
-    node.props['data-depth'] = context.depth;
-    node.props['data-index'] = context.index;
-    node.props['data-id'] = `${node.type}-${context.depth}-${context.index}`;
-    
-    // Add some conditional logic
-    if (context.depth > 2) {
-      node.props['deep'] = true;
+    if (isComponentNode(node)) {
+      if (!node.props) node.props = {};
+      node.props['data-depth'] = context.depth;
+      node.props['data-index'] = context.index;
+      node.props['data-id'] = `${node.type}-${context.depth}-${context.index}`;
+      
+      // Add some conditional logic
+      if (context.depth > 2) {
+        node.props['deep'] = true;
+      }
     }
   },
   exit: (node) => {
-    if (!node.props) node.props = {};
-    node.props['visited'] = true;
+    if (isComponentNode(node)) {
+      if (!node.props) node.props = {};
+      node.props['visited'] = true;
+    }
   }
 };
 
