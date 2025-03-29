@@ -19,7 +19,7 @@ Let's start with a simple example of rendering a contact form from JSON:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { renderNode, transformJsonTree } from 'react-jsonr';
+import { renderNode, transformJsonTree, createRegistry } from 'react-jsonr';
 
 // Define your components
 const Form = ({ title, children, ...props }) => (
@@ -40,12 +40,13 @@ const Button = ({ label, ...props }) => (
   <button type="button" {...props}>{label}</button>
 );
 
-// 1. Create a component registry (whitelist of allowed components)
-const registry = {
+// 1. Create a component registry with your custom components
+// (All HTML elements, Fragment, and Portal are already included)
+const registry = createRegistry({
   Form,
   Input,
   Button,
-};
+});
 
 // 2. Define event handlers that can be referenced from JSON
 const eventHandlers = {
