@@ -40,12 +40,12 @@ const userProfileJson: JsonNode = {
   },
   children: [
     {
-      key: 'user-profile',
+      id: 'user-profile',
       type: 'div',
       props: { className: 'flex items-center gap-4' },
       children: [
         {
-          key: 'avatar',
+          id: 'avatar',
           type: 'Avatar',
           props: { 
             src: '/avatar.png',
@@ -53,7 +53,7 @@ const userProfileJson: JsonNode = {
           }
         },
         {
-          key: 'profile-info',
+          id: 'profile-info',
           type: 'ProfileInfo',
           props: { 
             name: 'Jane Doe',
@@ -143,11 +143,13 @@ const jsonDefinition = {
   type: 'Form',
   props: { title: 'Contact Us' },
   children: [
-    { 
+    {
+      id: 'email-input',
       type: 'Input',
       props: { name: 'email', label: 'Email' }
     },
     { 
+      id: 'submit-button',
       type: 'Button',
       props: { label: 'Submit', onClick: 'submitForm' }
     }
