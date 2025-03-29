@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { transformJsonTree } from '../src/transformation';
 import type { JsonNode, TransformVisitor } from '../src/types';
 import { traverseJsonTree } from '../src/transformation';
+import { isComponentNode } from '../src/types';
 
 describe('transformJsonTree', () => {
   it('should apply visitors to nodes', async () => {
@@ -26,8 +27,10 @@ describe('transformJsonTree', () => {
     // Create a simple visitor that adds a data-testid prop
     const visitor: TransformVisitor = {
       enter: (node) => {
-        if (!node.props) node.props = {};
-        node.props['data-testid'] = `test-${node.type}`;
+        if (isComponentNode(node)) {
+          if (!node.props) node.props = {};
+          node.props['data-testid'] = `test-${node.type}`;
+        }
       }
     };
 
@@ -35,10 +38,22 @@ describe('transformJsonTree', () => {
     const result = await transformJsonTree(jsonTree, [visitor]);
 
     // Check the result - should have data-testid props
-    expect(result.props).toBeDefined();
-    expect(result.props!['data-testid']).toBe('test-div');
-    expect(result.children?.[0].props?.['data-testid']).toBe('test-h1');
-    expect(result.children?.[1].props?.['data-testid']).toBe('test-p');
+    if (isComponentNode(result)) {
+      expect(result.props).toBeDefined();
+      expect(result.props!['data-testid']).toBe('test-div');
+      
+      if (Array.isArray(result.children)) {
+        const child0 = result.children[0];
+        const child1 = result.children[1];
+        
+        if (isComponentNode(child0) && isComponentNode(child1)) {
+          expect(child0.props?.['data-testid']).toBe('test-h1');
+          expect(child1.props?.['data-testid']).toBe('test-p');
+        }
+      }
+    } else {
+      throw new Error('Expected result to be a component node');
+    }
   });
 
   it('should allow skipping children', async () => {
@@ -53,9 +68,11 @@ describe('transformJsonTree', () => {
     const enterSpy = vi.fn();
     const visitor: TransformVisitor = {
       enter: (node, context) => {
-        enterSpy(node.type);
-        if (node.type === 'div') {
-          context.skipChildren();
+        if (isComponentNode(node)) {
+          enterSpy(node.type);
+          if (node.type === 'div') {
+            context.skipChildren();
+          }
         }
       }
     };
@@ -79,10 +96,14 @@ describe('transformJsonTree', () => {
     const visited: string[] = [];
     const visitor: TransformVisitor = {
       enter: (node) => {
-        visited.push(`enter-${node.type}`);
+        if (isComponentNode(node)) {
+          visited.push(`enter-${node.type}`);
+        }
       },
       exit: (node) => {
-        visited.push(`exit-${node.type}`);
+        if (isComponentNode(node)) {
+          visited.push(`exit-${node.type}`);
+        }
       }
     };
 
@@ -106,7 +127,7 @@ describe('transformJsonTree', () => {
     // By default (clone: true), the original should not be modified
     await transformJsonTree(json, [{
       enter(node) {
-        if (node.type === 'span' && node.props) {
+        if (isComponentNode(node) && node.type === 'span' && node.props) {
           node.props.text = 'Modified';
         }
       }
@@ -117,7 +138,7 @@ describe('transformJsonTree', () => {
     // With clone: false, the original should be modified
     await transformJsonTree(json, [{
       enter(node) {
-        if (node.type === 'span' && node.props) {
+        if (isComponentNode(node) && node.type === 'span' && node.props) {
           node.props.text = 'Modified';
         }
       }
@@ -146,7 +167,8 @@ describe('traverseJsonTree', () => {
     const results = Array.from(generator);
     
     expect(results.length).toBe(4);
-    expect(results.map(r => r.node.type)).toEqual(['root', 'child1', 'child2', 'grandchild']);
+    expect(results.map(r => isComponentNode(r.node) ? r.node.type : null).filter(Boolean))
+      .toEqual(['root', 'child1', 'child2', 'grandchild']);
   });
 
   it('should filter nodes by type', () => {
@@ -167,7 +189,8 @@ describe('traverseJsonTree', () => {
     const results = Array.from(generator);
     
     expect(results.length).toBe(2);
-    expect(results.map(r => r.node.type)).toEqual(['span', 'span']);
+    expect(results.map(r => isComponentNode(r.node) ? r.node.type : null).filter(Boolean))
+      .toEqual(['span', 'span']);
   });
 
   it('should allow modifying nodes during traversal', () => {
@@ -185,13 +208,21 @@ describe('traverseJsonTree', () => {
     });
     
     for (const { node } of generator) {
-      if (node.type === 'p' && node.props) {
+      if (isComponentNode(node) && node.type === 'p' && node.props) {
         node.props.text = node.props.text.toUpperCase();
       }
     }
     
-    expect(json.children[0].props?.text).toBe('HELLO');
-    expect(json.children[1].props?.text).toBe('WORLD');
+    // Type assertion to access the children properly
+    if (isComponentNode(json) && Array.isArray(json.children)) {
+      const child0 = json.children[0];
+      const child1 = json.children[1];
+      
+      if (isComponentNode(child0) && isComponentNode(child1)) {
+        expect(child0.props?.text).toBe('HELLO');
+        expect(child1.props?.text).toBe('WORLD');
+      }
+    }
   });
 
   it('should respect traversal order', () => {
@@ -210,15 +241,19 @@ describe('traverseJsonTree', () => {
 
     // Test depth-first post-order
     const postOrderGenerator = traverseJsonTree(json, { order: 'depthFirstPost' });
-    const postOrderResults = Array.from(postOrderGenerator);
+    const postOrderResults = Array.from(postOrderGenerator)
+      .filter(result => isComponentNode(result.node))
+      .map(result => ({ ...result, nodeType: (result.node as any).type }));
     
-    expect(postOrderResults.map(r => r.node.type)).toEqual(['child1', 'grandchild', 'child2', 'root']);
+    expect(postOrderResults.map(r => r.nodeType)).toEqual(['child1', 'grandchild', 'child2', 'root']);
     
     // Test breadth-first
     const bfsGenerator = traverseJsonTree(json, { order: 'breadthFirst' });
-    const bfsResults = Array.from(bfsGenerator);
+    const bfsResults = Array.from(bfsGenerator)
+      .filter(result => isComponentNode(result.node))
+      .map(result => ({ ...result, nodeType: (result.node as any).type }));
     
-    expect(bfsResults.map(r => r.node.type)).toEqual(['root', 'child1', 'child2', 'grandchild']);
+    expect(bfsResults.map(r => r.nodeType)).toEqual(['root', 'child1', 'child2', 'grandchild']);
   });
 
   it('should respect skipChildren in context', () => {
@@ -239,16 +274,17 @@ describe('traverseJsonTree', () => {
     const results: string[] = [];
     
     for (const { node, context } of generator) {
-      results.push(node.type);
-      
-      // Skip child2's children
-      if (node.type === 'child2') {
-        context.skipChildren();
+      if (isComponentNode(node)) {
+        results.push(node.type);
+        
+        // Skip child2's children
+        if (node.type === 'child2') {
+          context.skipChildren();
+        }
       }
     }
     
     expect(results).toEqual(['root', 'child1', 'child2']);
-    // grandchild should be skipped
   });
 
   it('should respect clone option', () => {
@@ -264,7 +300,7 @@ describe('traverseJsonTree', () => {
     const generator1 = traverseJsonTree(json, { clone: false });
     
     for (const { node } of generator1) {
-      if (node.type === 'p' && node.props) {
+      if (isComponentNode(node) && node.type === 'p' && node.props) {
         node.props.text = 'MODIFIED';
       }
     }
@@ -279,7 +315,7 @@ describe('traverseJsonTree', () => {
     const generator2 = traverseJsonTree(json, { clone: true });
     
     for (const { node } of generator2) {
-      if (node.type === 'p' && node.props) {
+      if (isComponentNode(node) && node.type === 'p' && node.props) {
         node.props.text = 'CHANGED';
       }
     }

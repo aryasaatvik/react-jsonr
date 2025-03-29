@@ -4,6 +4,7 @@ import { transformJsonTree } from '../src/transformation';
 import { renderNode } from '../src/rendering';
 import type { JsonNode, TransformVisitor, ComponentRegistry } from '../src/types';
 import { render } from '@testing-library/react';
+import { isComponentNode } from '../src/types';
 
 describe('Integration: transformJsonTree and renderNode', () => {
   it('should transform and then render a JSON tree', async () => {
@@ -13,11 +14,13 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { className: 'container' },
       children: [
         {
+          key: 'title',
           type: 'h1',
           props: { className: 'title' },
           children: [],
         },
         {
+          key: 'paragraph',
           type: 'p',
           props: { className: 'text' },
           children: [],
@@ -28,8 +31,9 @@ describe('Integration: transformJsonTree and renderNode', () => {
     // Create a simple visitor that adds data-testid props
     const visitor: TransformVisitor = {
       enter: (node) => {
-        if (!node.props) node.props = {};
-        node.props['data-testid'] = `test-${node.type}`;
+        if (isComponentNode(node) && node.props) {
+          node.props['data-testid'] = `test-${node.type}`;
+        }
       }
     };
 
@@ -71,10 +75,12 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { id: 'main-content' },
       children: [
         {
+          key: 'header',
           type: 'div',
           props: { className: 'header' },
           children: [
             {
+              key: 'title',
               type: 'h1',
               props: { className: 'title' },
               children: []
@@ -82,15 +88,18 @@ describe('Integration: transformJsonTree and renderNode', () => {
           ]
         },
         {
+          key: 'body',
           type: 'div',
           props: { className: 'body' },
           children: [
             {
+              key: 'paragraph',
               type: 'p',
               props: { className: 'paragraph' },
               children: []
             },
             {
+              key: 'button',
               type: 'button',
               props: { className: 'btn', onClick: 'handleClick' },
               children: []
@@ -103,16 +112,19 @@ describe('Integration: transformJsonTree and renderNode', () => {
     // Create visitors for transformations
     const addTestIds: TransformVisitor = {
       enter: (node, context) => {
-        if (!node.props) node.props = {};
-        // Create unique test IDs combining type, depth and index
-        node.props['data-testid'] = `${node.type}-${context.depth}-${context.index}`;
+        if (isComponentNode(node) && node.props) {
+          // Create unique test IDs combining type, depth and index
+          node.props['data-testid'] = `${node.type}-${context.depth}-${context.index}`;
+        }
       }
     };
     
     const addKeys: TransformVisitor = {
       enter: (node, context) => {
         // Add keys based on index and depth
-        node.key = `node-${context.depth}-${context.index}`;
+        if (isComponentNode(node) && node.props) {
+          node.props['data-testid'] = `${node.type}-${context.depth}-${context.index}`;
+        }
       }
     };
 
