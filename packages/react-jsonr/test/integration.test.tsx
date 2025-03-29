@@ -14,11 +14,13 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { className: 'container' },
       children: [
         {
+          key: 'title',
           type: 'h1',
           props: { className: 'title' },
           children: [],
         },
         {
+          key: 'paragraph',
           type: 'p',
           props: { className: 'text' },
           children: [],
@@ -73,10 +75,12 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { id: 'main-content' },
       children: [
         {
+          key: 'header',
           type: 'div',
           props: { className: 'header' },
           children: [
             {
+              key: 'title',
               type: 'h1',
               props: { className: 'title' },
               children: []
@@ -84,15 +88,18 @@ describe('Integration: transformJsonTree and renderNode', () => {
           ]
         },
         {
+          key: 'body',
           type: 'div',
           props: { className: 'body' },
           children: [
             {
+              key: 'paragraph',
               type: 'p',
               props: { className: 'paragraph' },
               children: []
             },
             {
+              key: 'button',
               type: 'button',
               props: { className: 'btn', onClick: 'handleClick' },
               children: []

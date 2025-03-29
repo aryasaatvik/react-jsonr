@@ -30,11 +30,6 @@ export function renderNode(
       // Add stable keys to array children to avoid React warnings
       const element = renderNode(child, registry, context);
       
-      // For primitive values or when the element is an array itself, wrap with a key
-      if (isPrimitiveNode(child) || Array.isArray(element)) {
-        return React.createElement(React.Fragment, { key: `item-${index}` }, element);
-      }
-      
       // For component nodes, the key is already handled in renderComponentNode
       return element;
     });
@@ -112,11 +107,6 @@ function renderNodeChildren(
     return children.map((child, index) => {
       // Add stable keys to array children to avoid React warnings
       const element = renderNode(child, registry, context);
-      
-      // For primitive values or when the element is an array itself, wrap with a key
-      if (isPrimitiveNode(child) || Array.isArray(element)) {
-        return React.createElement(React.Fragment, { key: `item-${index}` }, element);
-      }
       
       // For component nodes, the key is already handled in renderComponentNode
       return element;
