@@ -1,6 +1,6 @@
 {
   "name": "react-jsonr",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A plugin-based JSON to React component renderer",
   "type": "module",
   "module": "dist/index.js",
@@ -26,7 +26,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "bench": "vitest bench"
+    "bench": "vitest bench",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "react",
