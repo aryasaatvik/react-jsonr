@@ -29,5 +29,10 @@
     "sherif": "^1.4.0",
     "turbo": "^2.4.4"
   },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.25.1"
+    }
+  },
   "private": true
 }
