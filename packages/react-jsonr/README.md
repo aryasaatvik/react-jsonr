@@ -5,6 +5,7 @@ React JSONR is a lightweight, extensible library that converts JSON definitions 
 ## Features
 
 - **JSON-to-React Conversion**: Transform a JSON description of a UI into a fully-rendered React element tree.
+- **Complete ReactNode Support**: Handle all React node types including primitives (strings, numbers, booleans), arrays, Fragment, Portal, and components.
 - **Plugin-Based Transformation**: Insert synchronous or asynchronous plugins to mutate, enrich, or validate the JSON tree before rendering.
 - **Flexible Traversal**: Supports configurable traversal orders (e.g., depth-first pre-order, post-order, or breadth-first) with options to skip subtrees.
 - **Component Registry**: Uses a whitelist of allowed component types, ensuring that only registered components are rendered.
@@ -77,37 +78,135 @@ function App() {
 }
 ```
 
+## ReactNode Support
+
+React JSONR fully supports all React node types, allowing you to mix component nodes with primitive values:
+
+```tsx
+import { renderNode, FRAGMENT, PORTAL } from 'react-jsonr';
+
+// Define component registry with special components
+const registry = {
+  div: 'div',
+  span: 'span',
+  [FRAGMENT]: React.Fragment,
+  [PORTAL]: ({ container, children }) => React.createPortal(children, document.querySelector(container))
+};
+
+// Example using different node types
+const jsonDefinition = {
+  type: 'div',
+  children: [
+    // String primitive
+    'Hello ',
+    
+    // Number primitive
+    42,
+    
+    // Component with array of mixed children
+    {
+      type: 'span',
+      children: [' - ', 'Welcome', '!']
+    },
+    
+    // React Fragment
+    {
+      type: FRAGMENT,
+      children: [
+        ' ',
+        { type: 'span', children: 'Multiple nodes without a wrapper' }
+      ]
+    },
+    
+    // React Portal
+    {
+      type: PORTAL,
+      props: { container: '#modal-root' },
+      children: { type: 'div', children: 'Portal Content' }
+    }
+  ]
+};
+
+const component = renderNode(jsonDefinition, registry);
+``` 
+
 ## Advanced Usage with Plugins
 
 ```tsx
-// Plugin to fetch data and update the JSON
-const DataFetchPlugin = {
-  async enter(node, context) {
-    if (node.type === 'UserProfile' && node.props?.userId) {
-      const userId = node.props.userId;
-      const userData = await fetchUserData(userId);
-      
-      // Update the node with fetched data
-      node.props.userData = userData;
+import { renderNode, transformJsonTree } from 'react-jsonr';
+
+// Define plugins
+const myPlugins = [
+  {
+    enter: (node, context) => {
+      // Transform nodes on the way down the tree
+      if (node.type === 'button') {
+        node.props = { ...node.props, className: 'btn btn-primary' };
+      }
+    },
+    exit: (node, context) => {
+      // Transform nodes on the way up the tree
+      if (node.type === 'div' && context.depth === 0) {
+        node.props = { ...node.props, id: 'root-container' };
+      }
     }
   }
-};
+];
 
-// Plugin to add IDs to elements for analytics
-const AnalyticsPlugin = {
-  enter(node, context) {
-    if (!node.props?.id && node.props?.onClick) {
-      node.props.id = `analytics-${node.type}-${context.index}`;
-    }
-  }
-};
+// Apply transforms
+const transformedJson = await transformJsonTree(jsonDefinition, myPlugins);
 
-// Use multiple plugins
-const transformed = await transformJsonTree(jsonDefinition, [
-  DataFetchPlugin,
-  AnalyticsPlugin
-]);
+// Render the transformed tree
+const component = renderNode(transformedJson, componentRegistry);
 ```
+
+## Primitive Node Transformations
+
+React JSONR supports transforming primitive nodes (strings, numbers, booleans) within your JSON tree:
+
+```tsx
+import { renderNode, transformJsonTree, isPrimitiveNode, createComponentNode } from 'react-jsonr';
+
+// Define primitive transformation plugins
+const primitivePlugins = [
+  {
+    // Convert strings to uppercase
+    enter: (node, context) => {
+      if (isPrimitiveNode(node) && typeof node === 'string') {
+        return node.toUpperCase();
+      }
+    }
+  },
+  {
+    // Format numbers
+    enter: (node, context) => {
+      if (isPrimitiveNode(node) && typeof node === 'number') {
+        return `$${node.toFixed(2)}`;
+      }
+    }
+  },
+  {
+    // Convert specific strings to component nodes
+    enter: (node, context) => {
+      if (isPrimitiveNode(node) && typeof node === 'string' && node.includes('important')) {
+        return createComponentNode('strong', { style: { color: 'red' } }, node);
+      }
+    }
+  }
+];
+
+// Apply transforms - primitive nodes are processed just like component nodes
+const transformedJson = await transformJsonTree(jsonDefinition, primitivePlugins);
+
+const component = renderNode(transformedJson, componentRegistry);
+```
+
+This enables powerful text transformations like:
+- Converting text to uppercase/lowercase
+- Formatting numbers and dates
+- Pattern matching with regex to highlight or modify text
+- Converting plain text to rich components based on content
+- Localizing or translating strings
 
 ## Interactive Traversal with Generator
 
