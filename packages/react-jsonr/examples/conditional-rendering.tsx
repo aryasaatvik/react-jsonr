@@ -8,6 +8,7 @@ import {
   createFragment,
   JsonNode 
 } from '../src';
+import { createRegistry } from '../src';
 
 // JSON definition with content that will be conditionally rendered
 const jsonDefinition: JsonNode = {
@@ -123,18 +124,8 @@ const jsonDefinition: JsonNode = {
   ]
 };
 
-// Component registry
-const registry = {
-  div: 'div',
-  h1: 'h1',
-  h2: 'h2',
-  h3: 'h3',
-  p: 'p',
-  button: 'button',
-  ul: 'ul',
-  li: 'li',
-  span: 'span'
-};
+// Component registry with HTML elements automatically included
+const registry = createRegistry();
 
 interface UserState {
   isLoggedIn: boolean;

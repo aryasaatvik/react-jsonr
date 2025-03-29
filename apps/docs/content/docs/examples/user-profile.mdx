@@ -54,16 +54,14 @@ const Text = ({ text, ...props }) => <p {...props}>{text}</p>;
 
 ```tsx
 // Register our components
-const registry = {
+import { createRegistry } from 'react-jsonr';
+
+const registry = createRegistry({
   UserProfile,
   ProfileSection,
   AdminPanel,
-  Text,
-  div: 'div',
-  span: 'span',
-  h4: 'h4',
-  button: 'button',
-};
+  Text
+});
 
 // Define event handlers
 const eventHandlers = {

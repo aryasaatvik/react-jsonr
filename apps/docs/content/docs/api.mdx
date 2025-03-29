@@ -119,6 +119,21 @@ type ComponentRegistry = {
 
 The keys are the type names used in JSON, and the values are either React components or strings (for native HTML elements).
 
+You can create a registry using the `createRegistry` function, which automatically includes all HTML elements and special components like Fragment and Portal:
+
+```typescript
+import { createRegistry } from 'react-jsonr';
+
+// Create a registry with just your custom components
+// All HTML elements, Fragment, and Portal are automatically included
+const registry = createRegistry({
+  CustomComponent: MyCustomComponent,
+  SpecialButton: ({ children, ...props }) => (
+    <button className="special-btn" {...props}>{children}</button>
+  )
+});
+```
+
 ### TransformVisitor
 
 Plugin interface for transforming the JSON tree.

@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import { ImageZoom } from 'fumadocs-ui/components/image-zoom';
 import GithubIcon from '@/components/github-icon';
-import { renderNode } from 'react-jsonr';
+import { renderNode, transformJsonTree, createRegistry } from 'react-jsonr';
 import type { JsonNode, ComponentRegistry } from 'react-jsonr';
 
 // Define the components that will be used in the JSON
@@ -126,14 +126,14 @@ export default async function HomePage() {
           <div className="bg-fd-card text-fd-card-foreground p-4 rounded-lg border border-fd-border overflow-auto">
             <DynamicCodeBlock 
               lang="tsx" 
-              code={`import { renderNode, transformJsonTree } from 'react-jsonr';
+              code={`import { renderNode, transformJsonTree, createRegistry } from 'react-jsonr';
 
-// Define component registry
-const registry = {
+// Define component registry with your custom components
+const registry = createRegistry({
   Form: MyFormComponent,
   Input: MyInputComponent,
   Button: MyButtonComponent,
-};
+});
 
 // JSON definition
 const jsonDefinition = {

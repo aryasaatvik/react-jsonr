@@ -52,14 +52,13 @@ const Text = ({ text, ...props }) => <p {...props}>{text}</p>;
 These components are registered in a component registry for use with React JSONR:
 
 ```tsx
-const registry = {
+import { createRegistry } from 'react-jsonr';
+
+const registry = createRegistry({
   Form,
   Input,
   Button,
-  Text,
-  div: 'div',
-  h1: 'h1',
-  p: 'p',
-  // ... other HTML elements as needed
-};
+  Text
+  // All HTML elements are automatically included
+});
 ``` 

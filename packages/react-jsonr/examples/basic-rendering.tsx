@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderNode, JsonNode } from '../src';
+import { renderNode, JsonNode, createRegistry } from '../src';
 
 // Basic JSON definition for a simple UI
 const jsonDefinition: JsonNode = {
@@ -55,13 +55,8 @@ const jsonDefinition: JsonNode = {
 };
 
 // Define component registry
-const registry = {
-  div: 'div',
-  h2: 'h2',
-  p: 'p',
-  button: 'button',
-  span: 'span'
-};
+// No need to list HTML elements as they're included automatically
+const registry = createRegistry();
 
 export default function BasicRenderingExample() {
   // Render the JSON definition to React components

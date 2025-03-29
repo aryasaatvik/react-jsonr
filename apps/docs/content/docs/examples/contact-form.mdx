@@ -13,17 +13,15 @@ Here's the full implementation:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { renderNode, transformJsonTree } from 'react-jsonr';
+import { renderNode, transformJsonTree, createRegistry } from 'react-jsonr';
 import { Form, Input, Button } from './components';
 
 // Create a component registry
-const registry = {
+const registry = createRegistry({
   Form,
   Input,
-  Button,
-  div: 'div',
-  p: 'p',
-};
+  Button
+});
 
 // Define event handlers
 const eventHandlers = {

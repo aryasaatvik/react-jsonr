@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { renderNode, transformJsonTree, isComponentNode, JsonNode, ComponentNode } from '../src';
+import { renderNode, transformJsonTree, isComponentNode, JsonNode, ComponentNode, createRegistry } from '../src';
 
 // Initial form definition
 const initialFormDefinition: ComponentNode = {
@@ -97,19 +97,8 @@ const initialFormDefinition: ComponentNode = {
   ]
 };
 
-// Component registry
-const registry = {
-  form: 'form',
-  div: 'div',
-  h2: 'h2',
-  label: 'label',
-  input: 'input',
-  select: 'select',
-  option: 'option',
-  textarea: 'textarea',
-  button: 'button',
-  p: 'p'
-};
+// Component registry - HTML elements are now automatically included
+const registry = createRegistry();
 
 export default function DynamicFormExample() {
   const [formDefinition, setFormDefinition] = useState(initialFormDefinition);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderNode, transformJsonTree, TransformVisitor, isComponentNode, isPrimitiveNode, createComponentNode } from '../src';
+import { renderNode, transformJsonTree, TransformVisitor, isComponentNode, isPrimitiveNode, createComponentNode, createRegistry } from '../src';
 
 // Example JSON definition with primitive values
 const jsonDefinition = {
@@ -20,13 +20,10 @@ const jsonDefinition = {
   ]
 };
 
-// Define component registry
-const registry = {
-  div: 'div',
-  span: 'span',
-  button: 'button',
-  strong: 'strong'
-};
+// Define component registry with built-in HTML elements
+const registry = createRegistry({
+  strong: 'strong' // This is unnecessary as HTML elements are automatically included
+});
 
 // Example 1: Plugin to uppercase all string primitive nodes
 const uppercaseStringsPlugin: TransformVisitor = {

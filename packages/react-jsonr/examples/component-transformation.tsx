@@ -7,6 +7,7 @@ import {
   createComponentNode, 
   JsonNode 
 } from '../src';
+import { createRegistry } from '../src';
 
 // Example JSON with various components
 const jsonDefinition: JsonNode = {
@@ -50,17 +51,8 @@ const jsonDefinition: JsonNode = {
   ]
 };
 
-// Define component registry
-const registry = {
-  div: 'div',
-  h1: 'h1',
-  p: 'p',
-  ul: 'ul',
-  li: 'li',
-  button: 'button',
-  strong: 'strong',
-  span: 'span'
-};
+// Define component registry with HTML elements automatically included
+const registry = createRegistry();
 
 // Transform 1: Add styles to all headers
 const headerStyleTransform: TransformVisitor = {

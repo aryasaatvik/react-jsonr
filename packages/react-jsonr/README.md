@@ -8,7 +8,7 @@ React JSONR is a lightweight, extensible library that converts JSON definitions 
 - **Complete ReactNode Support**: Handle all React node types including primitives (strings, numbers, booleans), arrays, Fragment, Portal, and components.
 - **Plugin-Based Transformation**: Insert synchronous or asynchronous plugins to mutate, enrich, or validate the JSON tree before rendering.
 - **Flexible Traversal**: Supports configurable traversal orders (e.g., depth-first pre-order, post-order, or breadth-first) with options to skip subtrees.
-- **Component Registry**: Uses a whitelist of allowed component types, ensuring that only registered components are rendered.
+- **Component Registry**: Uses a registry of allowed component types, with built-in support for all HTML elements, Fragment, and Portal.
 - **Event Handler Mapping**: Safely maps string-based event handler references (e.g., "onClick": "submitForm") to actual functions provided by your application.
 - **Performance Optimizations**: Designed to handle moderately large JSON trees efficiently, with support for caching and skipping unnecessary nodes.
 - **Zero External Dependencies**: Built with React (>= v18) and TypeScript, with minimal overhead.
@@ -30,15 +30,15 @@ pnpm add react-jsonr
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { renderNode, transformJsonTree } from 'react-jsonr';
+import { renderNode, transformJsonTree, createRegistry } from 'react-jsonr';
 
-// Define component registry
-const registry = {
+// Define component registry with your custom components
+// (All HTML elements, Fragment, and Portal are already included)
+const registry = createRegistry({
   Form: MyFormComponent,
   Input: MyInputComponent,
-  Button: MyButtonComponent,
-  div: 'div' // Native HTML elements can be included too
-};
+  Button: MyButtonComponent
+});
 
 // Define event handlers
 const eventHandlers = {
@@ -83,15 +83,16 @@ function App() {
 React JSONR fully supports all React node types, allowing you to mix component nodes with primitive values:
 
 ```tsx
-import { renderNode, FRAGMENT, PORTAL } from 'react-jsonr';
+import { renderNode, createRegistry, FRAGMENT, PORTAL } from 'react-jsonr';
 
-// Define component registry with special components
-const registry = {
-  div: 'div',
-  span: 'span',
-  [FRAGMENT]: React.Fragment,
-  [PORTAL]: ({ container, children }) => React.createPortal(children, document.querySelector(container))
-};
+// Create registry with just your custom components
+// HTML elements, Fragment, and Portal are automatically included
+const registry = createRegistry({
+  CustomComponent: MyCustomComponent,
+  SpecialButton: ({ children, ...props }) => (
+    <button className="special-btn" {...props}>{children}</button>
+  )
+});
 
 // Example using different node types
 const jsonDefinition = {
@@ -109,7 +110,7 @@ const jsonDefinition = {
       children: [' - ', 'Welcome', '!']
     },
     
-    // React Fragment
+    // React Fragment (automatically supported)
     {
       type: FRAGMENT,
       children: [
@@ -118,17 +119,24 @@ const jsonDefinition = {
       ]
     },
     
-    // React Portal
+    // React Portal (automatically supported)
     {
       type: PORTAL,
       props: { container: '#modal-root' },
       children: { type: 'div', children: 'Portal Content' }
+    },
+
+    // Custom component
+    {
+      type: 'CustomComponent',
+      props: { customProp: 'value' },
+      children: 'Using a custom component'
     }
   ]
 };
 
 const component = renderNode(jsonDefinition, registry);
-``` 
+```
 
 ## Advanced Usage with Plugins
 
