@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { JsonNode, ComponentRegistry, TransformVisitor, TransformContext, RenderContext } from '../src/types';
+import { type JsonNode, type ComponentRegistry, type TransformVisitor, type TransformContext, type RenderContext, isComponentNode } from '../src/types';
 
 describe('Types', () => {
   it('should validate JsonNode structure', () => {
@@ -12,18 +12,23 @@ describe('Types', () => {
     // Valid complete JsonNode
     const fullNode: JsonNode = {
       type: 'div',
-      props: { className: 'container' },
+      props: { 
+        className: 'container',
+        key: 'unique-key',
+        id: 'unique-id'
+      },
       children: [
         { type: 'span' }
       ],
-      key: 'unique-key',
-      id: 'unique-id'
+
     };
     expect(fullNode.type).toBe('div');
     expect(fullNode.props?.className).toBe('container');
-    expect(fullNode.children?.length).toBe(1);
-    expect(fullNode.key).toBe('unique-key');
-    expect(fullNode.id).toBe('unique-id');
+    if (Array.isArray(fullNode.children)) {
+      expect(fullNode.children.length).toBe(1);
+    }
+    expect(fullNode.props?.key).toBe('unique-key');
+    expect(fullNode.props?.id).toBe('unique-id');
   });
   
   it('should validate ComponentRegistry structure', () => {

@@ -40,9 +40,12 @@ describe('renderNode', () => {
       props: { className: 'outer', 'data-testid': 'nested-test-section' },
       children: [
         {
-          key: 'nested-test-div',
           type: 'div',
-          props: { className: 'inner', 'data-testid': 'nested-test-div' },
+          props: {
+            key: 'nested-test-div',
+            className: 'inner',
+            'data-testid': 'nested-test-div'
+          },
           children: []
         }
       ]

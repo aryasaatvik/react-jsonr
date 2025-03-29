@@ -80,8 +80,10 @@ describe('ReactNode Support', () => {
       children: [
         'Start: ',
         {
-          key: 'nested-span',
           type: 'span',
+          props: {
+            key: 'nested-span',
+          },
           children: ['Nested ', 123]
         },
         ' End'
@@ -99,13 +101,17 @@ describe('ReactNode Support', () => {
       type: FRAGMENT,
       children: [
         {
-          key: 'fragment-item-1',
           type: 'div',
+          props: {
+            key: 'fragment-item-1',
+          },
           children: 'Item 1'
         },
         {
-          key: 'fragment-item-2',
           type: 'div',
+          props: {
+            key: 'fragment-item-2',
+          },
           children: 'Item 2'
         }
       ]
@@ -141,9 +147,9 @@ describe('ReactNode Support', () => {
       children: [
         'Main content',
         {
-          key: 'portal',
           type: PORTAL,
           props: {
+            key: 'portal',
             container: '#portal-target'
           },
           children: {
@@ -205,12 +211,12 @@ describe('ReactNode Support', () => {
 
   describe('Node Creation Functions', () => {
     it('should create component nodes', () => {
-      const node = createComponentNode('div', { className: 'test' }, 'Text', 'key1');
+      const node = createComponentNode('div', { className: 'test', key: 'key1' }, 'Text');
 
       expect(node.type).toBe('div');
       expect(node.props?.className).toBe('test');
       expect(node.children).toBe('Text');
-      expect(node.key).toBe('key1');
+      expect(node.props?.key).toBe('key1');
     });
 
     it('should create Fragment nodes', () => {
@@ -218,7 +224,7 @@ describe('ReactNode Support', () => {
 
       expect(node.type).toBe(FRAGMENT);
       expect(node.children).toEqual(['Item 1', 'Item 2']);
-      expect(node.key).toBe('key2');
+      expect(node.props?.key).toBe('key2');
     });
 
     it('should create Portal nodes', () => {
@@ -237,27 +243,37 @@ describe('ReactNode Support', () => {
       children: [
         'Text at root',
         {
-          key: 'nested-div',
+          props: {
+            key: 'nested-div',
+          },
           type: 'div',
           children: [
             {
-              key: 'nested-span-1',
+              props: {
+                key: 'nested-span-1',
+              },
               type: 'span',
               children: 'Span 1'
             },
             {
-              key: 'nested-span-2',
+              props: {
+                key: 'nested-span-2',
+              },
               type: 'span',
               children: [42, ' is the answer']
             },
             createFragment([
               {
-                key: 'nested-p-1',
+                props: {
+                  key: 'nested-p-1',
+                },
                 type: 'p',
                 children: 'Paragraph 1'
               },
               {
-                key: 'nested-p-2',
+                props: {
+                  key: 'nested-p-2',
+                },
                 type: 'p',
                 children: 'Paragraph 2'
               }
@@ -269,7 +285,9 @@ describe('ReactNode Support', () => {
         null,
         undefined,
         [1, 2, 3],
-        createComponentNode('h1', {}, 'Heading', 'heading')
+        createComponentNode('h1', {
+          key: 'heading'
+        }, 'Heading')
       ]
     };
 
@@ -299,15 +317,13 @@ describe('ReactNode Support', () => {
         // Mix of primitives and components
         'Text',
         {
-          key: 'span1',
           type: 'span',
-          props: { 'data-testid': 'span1' }
+          props: { key: 'span1', 'data-testid': 'span1' }
         },
         42,
         {
-          key: 'span2',
           type: 'span',
-          props: { 'data-testid': 'span2' }
+          props: { key: 'span2', 'data-testid': 'span2' }
         },
         true,
         [1, 2, 3] // Nested array

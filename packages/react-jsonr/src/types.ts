@@ -19,8 +19,6 @@ export interface ComponentNode {
   type: string;
   props?: Record<string, any>;
   children?: JsonNode | JsonNode[];
-  key?: string;
-  id?: string;
 }
 
 /**
@@ -106,15 +104,11 @@ export function createComponentNode(
   type: string, 
   props?: Record<string, any>, 
   children?: JsonNode | JsonNode[],
-  key?: string,
-  id?: string
-): ComponentNode {
+): ComponentNode {  
   return {
     type,
     ...(props ? { props } : {}),
-    ...(children !== undefined ? { children } : {}),
-    ...(key ? { key } : {}),
-    ...(id ? { id } : {})
+    ...(children !== undefined ? { children } : {})
   };
 }
 
@@ -125,7 +119,7 @@ export function createFragment(
   children: JsonNode | JsonNode[],
   key?: string
 ): ComponentNode {
-  return createComponentNode(FRAGMENT, {}, children, key);
+  return createComponentNode(FRAGMENT, key ? { key } : undefined, children);
 }
 
 /**
@@ -136,5 +130,5 @@ export function createPortal(
   children: JsonNode | JsonNode[],
   key?: string
 ): ComponentNode {
-  return createComponentNode(PORTAL, { container }, children, key);
-} 
+  return createComponentNode(PORTAL, { container, key }, children);
+}

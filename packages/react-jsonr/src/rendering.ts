@@ -57,10 +57,9 @@ function renderComponentNode(
   // Process props, handling event handlers and keys
   const processedProps = processProps(node.props || {}, context);
   
-  // Extract key if present
-  const key = node.key || node.id || undefined;
-  if (key) {
-    processedProps.key = key;
+  // Use id as fallback for key
+  if (processedProps.key === undefined && processedProps.id !== undefined) {
+    processedProps.key = processedProps.id;
   }
   
   // Handle special component types
@@ -79,7 +78,8 @@ function renderComponentNode(
       
     return createPortal(
       renderNodeChildren(node.children, registry, context),
-      target
+      target,
+      processedProps.key
     );
   }
   

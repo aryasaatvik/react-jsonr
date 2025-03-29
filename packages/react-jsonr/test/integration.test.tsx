@@ -14,15 +14,19 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { className: 'container' },
       children: [
         {
-          key: 'title',
           type: 'h1',
-          props: { className: 'title' },
+          props: { 
+            key: 'title',
+            className: 'title'
+          },
           children: [],
         },
         {
-          key: 'paragraph',
           type: 'p',
-          props: { className: 'text' },
+          props: { 
+            key: 'text',
+            className: 'text' 
+          },
           children: [],
         }
       ]
@@ -75,33 +79,44 @@ describe('Integration: transformJsonTree and renderNode', () => {
       props: { id: 'main-content' },
       children: [
         {
-          key: 'header',
           type: 'div',
-          props: { className: 'header' },
+          props: {
+            key: 'header',
+            className: 'header'
+          },
           children: [
             {
-              key: 'title',
               type: 'h1',
-              props: { className: 'title' },
+              props: {
+                key: 'title',
+                className: 'title'
+              },
               children: []
             }
           ]
         },
         {
-          key: 'body',
           type: 'div',
-          props: { className: 'body' },
+          props: {
+            key: 'body',
+            className: 'body'
+          },
           children: [
             {
-              key: 'paragraph',
               type: 'p',
-              props: { className: 'paragraph' },
+              props: {
+                key: 'paragraph',
+                className: 'paragraph'
+              },
               children: []
             },
             {
-              key: 'button',
               type: 'button',
-              props: { className: 'btn', onClick: 'handleClick' },
+              props: {
+                key: 'button',
+                className: 'btn',
+                onClick: 'handleClick'
+              },
               children: []
             }
           ]

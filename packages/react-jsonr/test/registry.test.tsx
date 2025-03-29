@@ -79,15 +79,19 @@ describe('createRegistry', () => {
       type: FRAGMENT,
       children: [
         {
-          key: 'fragment-child-1',
           type: 'div',
-          props: { 'data-testid': 'fragment-child-1' },
+          props: { 
+            key: 'fragment-child-1',
+            'data-testid': 'fragment-child-1' 
+          },
           children: 'Child 1'
         },
         {
-          key: 'fragment-child-2',
           type: 'div',
-          props: { 'data-testid': 'fragment-child-2' },
+          props: { 
+            key: 'fragment-child-2',
+            'data-testid': 'fragment-child-2' 
+          },
           children: 'Child 2'
         }
       ]
