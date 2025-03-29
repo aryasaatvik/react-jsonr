@@ -4,6 +4,7 @@ import { transformJsonTree } from '../src/transformation';
 import { renderNode } from '../src/rendering';
 import type { JsonNode, TransformVisitor } from '../src/types';
 import { isComponentNode } from '../src/types';
+import { createRegistry } from '../src';
 
 // Create a sample small JSON tree
 const smallTree: JsonNode = {
@@ -70,12 +71,7 @@ const complexVisitor: TransformVisitor = {
 };
 
 // Component registry for rendering benchmarks
-const registry = {
-  div: 'div',
-  span: 'span',
-  h1: 'h1',
-  p: 'p'
-};
+const registry = createRegistry();
 
 describe('transformJsonTree performance', () => {
   bench('small tree - simple visitor', async () => {

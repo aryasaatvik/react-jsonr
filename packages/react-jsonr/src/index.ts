@@ -1,6 +1,7 @@
 // Main entry point for React-JSONR
 export { renderNode } from './rendering';
 export { transformJsonTree, traverseJsonTree } from './transformation';
+export { createRegistry } from './registry';
 export type { 
   JsonNode, 
   ComponentNode, 
