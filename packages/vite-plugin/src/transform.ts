@@ -1,5 +1,7 @@
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
+import _traverse from '@babel/traverse';
+// @ts-expect-error f*ck esm/cjs interop
+const traverse = _traverse.default || _traverse;
 import * as t from '@babel/types';
 import generate from '@babel/generator';
 
@@ -11,6 +13,7 @@ interface SerializableJsonNode {
 
 interface TransformResult {
   code: string;
+  json?: string;
 }
 
 function expressionToSerializable(expr: t.Expression): any {
@@ -102,8 +105,8 @@ export function transformJsxToJson(code: string, id: string): TransformResult {
   });
 
   traverse(ast, {
-    JSXElement(path) {
-      if (!path.findParent((p) => p.isJSXElement())) {
+    JSXElement(path: any) {
+      if (!path.findParent((p: any) => p.isJSXElement())) {
         rootJsonNode = buildSerializableJson(path.node);
         path.stop();
       }
@@ -118,5 +121,6 @@ export function transformJsxToJson(code: string, id: string): TransformResult {
 
   return {
     code: jsonCode,
+    json: jsonCode,
   };
 } 
