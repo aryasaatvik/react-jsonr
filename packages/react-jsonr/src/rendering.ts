@@ -53,40 +53,37 @@ function renderComponentNode(
     console.warn(`Unknown component type: ${node.type}`);
     return null;
   }
-
-  // Process props, handling event handlers and keys
-  const processedProps = processProps(node.props || {}, context);
   
   // Use id as fallback for key
-  if (processedProps.key === undefined && processedProps.id !== undefined) {
-    processedProps.key = processedProps.id;
+  if (node.props?.key === undefined && node.props?.id !== undefined) {
+    node.props.key = node.props.id;
   }
   
   // Handle special component types
   if (node.type === FRAGMENT) {
     return React.createElement(
       React.Fragment,
-      processedProps,
+      node.props,
       renderNodeChildren(node.children, registry, context)
     );
   }
   
   if (node.type === PORTAL) {
-    const target = typeof processedProps.container === 'string'
-      ? document.querySelector(processedProps.container)
-      : processedProps.container || document.body;
+    const target = typeof node.props?.container === 'string'
+      ? document.querySelector(node.props.container)
+      : node.props?.container || document.body;
       
     return createPortal(
       renderNodeChildren(node.children, registry, context),
       target,
-      processedProps.key
+      node.props?.key
     );
   }
   
   // Create the React element
   return createElement(
     component,
-    processedProps,
+    node.props,
     renderNodeChildren(node.children, registry, context)
   );
 }
@@ -115,35 +112,3 @@ function renderNodeChildren(
   
   return renderNode(children, registry, context);
 }
-
-/**
- * Process props, mapping event handlers and performing any necessary transformations
- */
-function processProps(
-  props: Record<string, any>,
-  context: RenderContext
-): Record<string, any> {
-  const result: Record<string, any> = {};
-  const eventHandlers = context.eventHandlers || {};
-  
-  // Process each prop
-  for (const [key, value] of Object.entries(props)) {
-    // Check if it's an event handler (starts with "on" and is a string)
-    if (key.startsWith('on') && typeof value === 'string') {
-      // Try to find the corresponding function in eventHandlers
-      const handler = eventHandlers[value];
-      if (typeof handler === 'function') {
-        result[key] = handler;
-      } else {
-        console.warn(`Event handler not found: ${value}`);
-        // Still add the prop without transformation
-        result[key] = value;
-      }
-    } else {
-      // Regular prop, pass through as is
-      result[key] = value;
-    }
-  }
-  
-  return result;
-} 

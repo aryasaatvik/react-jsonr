@@ -347,3 +347,50 @@ When writing tests, follow these guidelines:
 2. Keep test cases focused on testing a single piece of functionality
 3. Use unique data-testid attributes when testing rendered components
 4. Mock external dependencies when necessary 
+
+## Event Handlers
+
+For handling events, we recommend using the dedicated plugin:
+
+```bash
+# npm
+npm install @react-jsonr/plugin-event-handlers
+
+# yarn
+yarn add @react-jsonr/plugin-event-handlers
+
+# pnpm
+pnpm add @react-jsonr/plugin-event-handlers
+```
+
+With the plugin, you can map string event handler references to actual functions:
+
+```tsx
+import { createEventHandlerPlugin } from '@react-jsonr/plugin-event-handlers';
+
+// Define event handlers
+const eventHandlers = {
+  submitForm: () => {
+    alert('Form submitted!');
+  }
+};
+
+// Create the event handler plugin
+const eventHandlerPlugin = createEventHandlerPlugin({
+  handlers: eventHandlers
+});
+
+// Define your UI as JSON
+const jsonDefinition = {
+  type: 'Button',
+  props: {
+    onClick: 'submitForm'  // This will be mapped to the actual function
+  }
+};
+
+// Transform the JSON tree with the plugin
+const transformed = await transformJsonTree(jsonDefinition, [eventHandlerPlugin]);
+
+// Render the component
+const element = renderNode(transformed, registry);
+```

@@ -1,0 +1,36 @@
+{
+  "name": "@react-jsonr/plugin-event-handlers",
+  "version": "0.1.0",
+  "description": "Event handler mapping plugin for React-JSONR",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "react",
+    "json",
+    "renderer",
+    "event-handlers",
+    "plugin"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "react-jsonr": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.12",
+    "glob": "^11.0.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2"
+  }
+}

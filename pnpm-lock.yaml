@@ -70,6 +70,31 @@ importers:
         specifier: ^5.8.2
         version: 5.8.2
 
+  packages/plugin-event-handlers:
+    dependencies:
+      react:
+        specifier: '>=16.8.0'
+        version: 19.0.0
+      react-dom:
+        specifier: '>=16.8.0'
+        version: 19.0.0(react@19.0.0)
+      react-jsonr:
+        specifier: '>=0.1.0'
+        version: 0.3.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.12
+        version: 19.0.12
+      glob:
+        specifier: ^11.0.1
+        version: 11.0.1
+      tsup:
+        specifier: ^8.4.0
+        version: 8.4.0(jiti@2.4.2)(postcss@8.5.3)(typescript@5.8.2)
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+
   packages/react-jsonr:
     devDependencies:
       '@testing-library/dom':
@@ -2498,6 +2523,12 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
+
+  react-jsonr@0.3.2:
+    resolution: {integrity: sha512-gtNLh4qotSUORjVhPcB+SuK/3/ay/xaAg7nlT+8veApFhZ2mu0BX47/fl2+C6a633jTdgSbshV/CjwA+PAkAIg==}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
 
   react-medium-image-zoom@5.2.14:
     resolution: {integrity: sha512-nfTVYcAUnBzXQpPDcZL+cG/e6UceYUIG+zDcnemL7jtAqbJjVVkA85RgneGtJeni12dTyiRPZVM6Szkmwd/o8w==}
@@ -5733,6 +5764,11 @@ snapshots:
       scheduler: 0.25.0
 
   react-is@17.0.2: {}
+
+  react-jsonr@0.3.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
 
   react-medium-image-zoom@5.2.14(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
