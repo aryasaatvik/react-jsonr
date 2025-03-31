@@ -1,0 +1,49 @@
+---
+title: Integrations
+description: Using React JSONR with build tools and frameworks
+---
+
+React JSONR can be integrated into various build systems and frameworks to streamline your development workflow.
+
+## Vite
+
+We provide an official Vite plugin, `@react-jsonr/vite-plugin`, to automatically transform your `.jsx` and `.tsx` files during development and build time.
+
+### Installation
+
+Install the plugin as a dev dependency using pnpm:
+
+```bash
+pnpm add -D @react-jsonr/vite-plugin
+```
+
+### Configuration
+
+Import and add the plugin to your `vite.config.ts` (or `vite.config.js`):
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react'; // Or your preferred React plugin
+import reactJsonrPlugin from '@react-jsonr/vite-plugin';
+
+export default defineConfig({
+  plugins: [
+    // Add reactJsonrPlugin BEFORE your React plugin
+    reactJsonrPlugin({
+      // Optional configuration:
+      // include: ['**/*.jsx'], // Default: ['**/*.{jsx,tsx}']
+      // exclude: ['**/node_modules/**'], // Default: ['node_modules/**', 'dist/**']
+    }),
+    react(), // Example: Using @vitejs/plugin-react
+  ],
+});
+```
+
+**Important:** Ensure `reactJsonrPlugin` comes *before* other plugins that process JSX/TSX (like `@vitejs/plugin-react` or `@vitejs/plugin-react-swc`) in the `plugins` array. This allows our plugin to transform the files first.
+
+### How it Works
+
+The plugin uses the `transform` hook with `enforce: 'pre'` to intercept `.jsx` and `.tsx` files. It applies the core React JSONR transformation logic (converting JSX-like syntax to the JSON structure) before Vite handles the file further.
+
+This means you can write your UI definitions using a familiar JSX-like syntax, and the plugin handles the conversion to the JSON format expected by the `renderNode` function seamlessly. 
