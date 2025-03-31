@@ -11,6 +11,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "prepublishOnly": "pnpm build",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -20,11 +21,14 @@
     "event-handlers",
     "plugin"
   ],
-  "author": "",
+  "author": "Saatvik Arya <aryasaatvik@gmail.com>",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
     "react-jsonr": ">=0.1.0"
   },
   "devDependencies": {

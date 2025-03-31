@@ -1,6 +1,6 @@
 {
   "name": "react-jsonr",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "A plugin-based JSON to React component renderer",
   "type": "module",
   "module": "dist/index.js",
@@ -43,6 +43,9 @@
     "directory": "packages/react-jsonr"
   },
   "author": "Saatvik Arya <aryasaatvik@gmail.com>",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "peerDependencies": {
     "react": ">=18.0.0",
