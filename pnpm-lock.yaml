@@ -73,10 +73,10 @@ importers:
   packages/plugin-event-handlers:
     dependencies:
       react:
-        specifier: '>=16.8.0'
+        specifier: '>=18.0.0'
         version: 19.0.0
       react-dom:
-        specifier: '>=16.8.0'
+        specifier: '>=18.0.0'
         version: 19.0.0(react@19.0.0)
       react-jsonr:
         specifier: '>=0.1.0'
